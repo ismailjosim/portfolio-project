@@ -1,26 +1,17 @@
-// sidebar-collapsed-logo.tsx
 import Image from 'next/image';
 
 export function SidebarCollapsedLogo() {
   return (
-    <div
-      className="
-        absolute inset-0 flex items-center justify-center
-        opacity-0 scale-75
-        transition-all duration-300
-        pointer-events-none
-        group-data-[collapsible=icon]:opacity-100
-        group-data-[collapsible=icon]:scale-100
-        group-data-[collapsible=icon]:pointer-events-auto
-      "
-    >
-      <Image
-        src="/person.jpeg"
-        alt="logo"
-        width={32}
-        height={32}
-        style={{ width: 'auto', height: 'auto' }}
-      />
+    <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center py-2 transition-all duration-300">
+      <div className="size-8 rounded-full overflow-hidden ring-2 ring-primary shrink-0">
+        <Image
+          src="/person.jpeg"
+          alt="logo"
+          width={32}
+          height={32}
+          className="w-full h-full object-cover"
+        />
+      </div>
     </div>
   );
 }

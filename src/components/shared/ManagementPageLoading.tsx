@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { Skeleton } from '../ui/skeleton';
 import { TableSkeleton } from './TableSkeleton';
 
 interface ManagementPageLoadingProps {
@@ -23,11 +24,9 @@ export function ManagementPageLoading({
     return (
       <div className="flex items-center gap-3">
         {Array.from({ length: filterCount }).map((_, index) => (
-          <div
+          <Skeleton
             key={index}
-            className={`h-10 ${
-              filterWidths[index] || 'w-40'
-            } bg-slate-300 dark:bg-slate-700 animate-pulse rounded-md border-2 border-slate-400 dark:border-slate-500 shadow-sm`}
+            className={`h-10 ${filterWidths[index] || 'w-40'} rounded-lg border border-border/40`}
           />
         ))}
       </div>
@@ -39,12 +38,10 @@ export function ManagementPageLoading({
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <div className="h-8 w-64 bg-slate-300 dark:bg-slate-700 animate-pulse rounded-md shadow-sm" />
-          <div className="h-4 w-96 bg-slate-300 dark:bg-slate-700 animate-pulse rounded-md shadow-sm" />
+          <Skeleton className="h-8 w-64 rounded-lg" />
+          <Skeleton className="h-4 w-96 max-w-full rounded-md" />
         </div>
-        {hasActionButton && (
-          <div className="h-10 w-32 bg-slate-300 dark:bg-slate-700 animate-pulse rounded-md shadow-sm" />
-        )}
+        {hasActionButton && <Skeleton className="h-10 w-32 rounded-lg" />}
       </div>
 
       {/* Filters Skeleton */}

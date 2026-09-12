@@ -1,5 +1,0 @@
-1. for blog: publised blog gula normal user ke show kornor jonno createdAt er poroborte updatedAt properites use korte hobe karon jokhon blog create kora hoy etake status: publised er poriborte onno kono status e rakha hote pare. 
-ete problem holo jodi 2/3din pore ei blog published kora hoy ebong er pore crate kora kono blog jodi er agei publsihed hoye jai tahole eta 1st e dekhabe na. ei jonno public page er blog gula specially getPublishedBlogs er sorting ta updatedAt er upore hole valo hoy. 
-
-2. blog e kono user jodi comment kore tahole oi comment e like and reply dewar ekta option rakhte hobe. jeno reply dewa jay. also spam type er comments gula remove kore dewar options rakhte hobe. 
-

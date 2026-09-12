@@ -1,7 +1,5 @@
 import { DashboardOverviewSkeleton } from '@/src/components/dashboard/DashboardOverviewSkeleton';
 
-const DashboardLoading = () => {
+export default function OverviewLoading() {
   return <DashboardOverviewSkeleton />;
-};
-
-export default DashboardLoading;
+}

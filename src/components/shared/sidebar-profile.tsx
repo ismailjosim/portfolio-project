@@ -7,7 +7,7 @@ import ThemeToggle from '../ui/ThemeToggle';
 
 export function SidebarProfile() {
   return (
-    <div className="relative z-10 p-6 text-center border-b border-border transition-all duration-300 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-90 group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:p-0">
+    <div className="relative z-10 p-6 text-center border-b border-border transition-all duration-300 group-data-[collapsible=icon]:hidden">
       <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-primary">
         <Image
           src="/person.jpeg"

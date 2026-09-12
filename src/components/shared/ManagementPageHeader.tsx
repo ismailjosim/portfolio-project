@@ -21,13 +21,13 @@ const ManagementPageHeader = ({
 }: ManagementPageHeaderPros) => {
   const Icon = action?.icon || Plus;
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
-        {description && <p className="text-muted-foreground mt-1">{description}</p>}
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h1>
+        {description && <p className="text-sm sm:text-base text-muted-foreground">{description}</p>}
       </div>
       {action && (
-        <Button onClick={action?.onClick}>
+        <Button onClick={action?.onClick} className="w-full sm:w-auto shrink-0 shadow-sm">
           <Icon className="mr-2 h-4 w-4" />
           {action?.label}
         </Button>

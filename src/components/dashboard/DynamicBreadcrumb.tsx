@@ -56,12 +56,16 @@ export const DynamicBreadcrumb = () => {
       <BreadcrumbList>
         {breadcrumbItems.map((item, index) => (
           <div key={item.href} className="flex items-center gap-2">
-            <BreadcrumbItem className="hidden md:block">
+            <BreadcrumbItem className={item.isActive ? 'block' : 'hidden md:block'}>
               {item.isActive ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                <BreadcrumbPage className="font-semibold text-foreground truncate max-w-[160px] sm:max-w-none">
+                  {item.label}
+                </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link href={item.href} className="truncate max-w-[120px] sm:max-w-none">
+                    {item.label}
+                  </Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

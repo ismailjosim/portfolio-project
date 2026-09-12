@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -21,22 +22,50 @@ const navItems = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('#home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const isHomePage = pathname === '/';
+
+  const currentActive = !isHomePage
+    ? pathname.startsWith('/blogs')
+      ? '#blog'
+      : pathname.startsWith('/projects') || pathname.startsWith('/all-projects')
+        ? '#projects'
+        : ''
+    : activeSection;
+
   useEffect(() => {
+    if (!isHomePage) return;
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
+      // Check if user scrolled near the bottom of the page
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      if (documentHeight - scrollPosition < 120) {
+        setActiveSection('#contact');
+        return;
+      }
+
+      // Check if user is at the very top of the page
+      if (window.scrollY < 120) {
+        setActiveSection('#home');
+        return;
+      }
+
       const sections = navItems.map((item) => item.href.substring(1));
+      const focalPoint = 180;
       let current = sections[0];
 
       for (const section of sections) {
         const el = document.getElementById(section);
         if (el) {
-          const { top, bottom } = el.getBoundingClientRect();
-          if (top <= 150 && bottom >= 150) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= focalPoint && rect.bottom > focalPoint) {
             current = section;
             break;
           }
@@ -45,9 +74,34 @@ export default function Navbar() {
       setActiveSection(`#${current}`);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
+
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    onComplete?: () => void
+  ) => {
+    if (isHomePage && href.startsWith('#')) {
+      e.preventDefault();
+      const id = href.substring(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        setActiveSection(href);
+        window.history.pushState(null, '', href);
+      }
+    }
+    if (onComplete) {
+      onComplete();
+    }
+  };
+
+  const getItemHref = (href: string) => {
+    return isHomePage ? href : `/${href}`;
+  };
 
   return (
     <header className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
@@ -60,9 +114,9 @@ export default function Navbar() {
         )}
       >
         {/* ── Logo + availability badge ── */}
-        <div className="flex flex-col justify-center  border border-primary rounded-full">
+        <div className="flex flex-col justify-center border border-primary rounded-full">
           <Link href="/" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-            <Avatar className=" w-12 h-12">
+            <Avatar className="w-12 h-12">
               <AvatarImage className="object-contain" src="/sticker.png" />
               <AvatarFallback>J.</AvatarFallback>
             </Avatar>
@@ -74,10 +128,11 @@ export default function Navbar() {
           {navItems.map((item) => (
             <li key={item.name}>
               <Link
-                href={item.href}
+                href={getItemHref(item.href)}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
-                  activeSection === item.href
+                  'px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer',
+                  currentActive === item.href
                     ? 'bg-accent text-accent-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
@@ -97,7 +152,7 @@ export default function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden rounded-2xl text-muted-foreground hover:text-accent hover:bg-muted transition-colors"
+                className="lg:hidden rounded-2xl text-muted-foreground hover:text-accent hover:bg-muted transition-colors cursor-pointer"
                 aria-label="Open menu"
               >
                 {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -109,11 +164,13 @@ export default function Navbar() {
                 {navItems.map((item) => (
                   <li key={item.name}>
                     <Link
-                      href={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      href={getItemHref(item.href)}
+                      onClick={(e) =>
+                        handleNavClick(e, item.href, () => setIsMobileMenuOpen(false))
+                      }
                       className={cn(
-                        'block px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200',
-                        activeSection === item.href
+                        'block px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 cursor-pointer',
+                        currentActive === item.href
                           ? 'bg-accent text-accent-foreground'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       )}

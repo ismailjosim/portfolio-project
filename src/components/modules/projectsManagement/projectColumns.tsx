@@ -15,8 +15,8 @@ const projectColumns: Column<IProject>[] = [
   {
     header: 'Project',
     accessor: (project) => (
-      <div className="flex items-center gap-3">
-        <div className="relative w-10 h-10 shrink-0">
+      <div className="flex items-center gap-3 min-w-[180px] max-w-[260px]">
+        <div className="relative size-10 shrink-0 rounded-md overflow-hidden bg-muted">
           <Image
             src={
               project.image?.startsWith('blob')
@@ -29,9 +29,11 @@ const projectColumns: Column<IProject>[] = [
             sizes="40px"
           />
         </div>
-        <div className="flex flex-col">
-          <span className="font-medium text-sm">{project.title}</span>
-          <span className="text-xs text-gray-500">{project.type}</span>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-sm truncate" title={project.title}>
+            {project.title}
+          </span>
+          <span className="text-xs text-muted-foreground truncate">{project.type}</span>
         </div>
       </div>
     ),
@@ -41,14 +43,19 @@ const projectColumns: Column<IProject>[] = [
   {
     header: 'Technologies',
     accessor: (project) => (
-      <div className="text-sm flex flex-wrap gap-1">
+      <div className="text-sm flex flex-wrap gap-1 max-w-[200px]">
         {project.technologies?.slice(0, 3).map((tech, idx) => (
-          <span key={idx} className="bg-gray-200 text-gray-800 px-2 py-1 rounded text-xs">
+          <span
+            key={idx}
+            className="bg-muted text-muted-foreground border border-border/50 px-2 py-0.5 rounded text-xs"
+          >
             {tech}
           </span>
         ))}
         {project.technologies && project.technologies.length > 3 && (
-          <span className="text-gray-500 text-xs">+{project.technologies.length - 3}</span>
+          <span className="text-muted-foreground/75 text-xs self-center">
+            +{project.technologies.length - 3}
+          </span>
         )}
       </div>
     ),
@@ -58,7 +65,11 @@ const projectColumns: Column<IProject>[] = [
     header: 'Featured',
     accessor: (project) => (
       <span
-        className={`px-2 py-1 text-xs rounded-full ${project.featured ? 'bg-green-500/20 text-green-600' : 'bg-gray-500/20 text-gray-500'}`}
+        className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border ${
+          project.featured
+            ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30'
+            : 'bg-muted text-muted-foreground border-border/50'
+        }`}
       >
         {project.featured ? 'Yes' : 'No'}
       </span>
@@ -70,7 +81,11 @@ const projectColumns: Column<IProject>[] = [
     header: 'Published',
     accessor: (project) => (
       <span
-        className={`px-2 py-1 text-xs rounded-full ${project.isPublished ? 'bg-green-500/20 text-green-600' : 'bg-gray-500/20 text-gray-500'}`}
+        className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border ${
+          project.isPublished
+            ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30'
+            : 'bg-amber-500/15 text-amber-500 border-amber-500/30'
+        }`}
       >
         {project.isPublished ? 'Published' : 'Draft'}
       </span>

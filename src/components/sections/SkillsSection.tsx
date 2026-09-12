@@ -127,7 +127,7 @@ export default function SkillsSection() {
   }, []);
 
   return (
-    <section id="skills" className="py-24">
+    <section id="skills" className="py-24 scroll-mt-20 md:scroll-mt-24">
       <div className="container mx-auto px-6">
         {/* Header */}
         <FadeUp>

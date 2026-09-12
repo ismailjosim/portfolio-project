@@ -74,8 +74,8 @@ export default function HeroSection() {
 
   return (
     <section
-      id="hero"
-      className="relative overflow-hidden min-h-screen flex items-center px-6 md:px-16 pt-32 lg:pt-10 bg-linear-to-br from-background to-secondary/40"
+      id="home"
+      className="relative overflow-hidden min-h-screen flex items-center px-6 md:px-16 pt-32 lg:pt-10 scroll-mt-24 bg-linear-to-br from-background to-secondary/40"
     >
       {/* Background Blobs */}
       <div className="absolute -top-24 -right-16 w-100 h-100 bg-primary/20 rounded-full blur-3xl" />

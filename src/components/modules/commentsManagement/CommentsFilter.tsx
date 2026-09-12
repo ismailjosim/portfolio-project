@@ -33,22 +33,28 @@ const CommentsFilter = () => {
   };
 
   return (
-    <div className="space-y-3 flex justify-end gap-4">
-      <SearchFilter paramName="searchTerm" placeholder="Search comments..." />
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 sm:max-w-md">
+        <div className="flex-1">
+          <SearchFilter paramName="searchTerm" placeholder="Search comments..." />
+        </div>
 
-      <Select value={currentStatus} onValueChange={changeStatus} disabled={isPending}>
-        <SelectTrigger className="w-36 h-10">
-          <SelectValue placeholder="All statuses" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All statuses</SelectItem>
-          <SelectItem value="visible">Visible</SelectItem>
-          <SelectItem value="spam">Spam</SelectItem>
-        </SelectContent>
-      </Select>
+        <Select value={currentStatus} onValueChange={changeStatus} disabled={isPending}>
+          <SelectTrigger className="w-full sm:w-36 h-10">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All statuses</SelectItem>
+            <SelectItem value="visible">Visible</SelectItem>
+            <SelectItem value="spam">Spam</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <ClearFiltersButton />
-      <RefreshButton />
+      <div className="flex items-center gap-2 justify-end">
+        <ClearFiltersButton />
+        <RefreshButton />
+      </div>
     </div>
   );
 };

@@ -81,7 +81,7 @@ const stats = [
 
 export default function ExperienceSection() {
   return (
-    <section id="experience" className="py-16 sm:py-20 lg:py-24">
+    <section id="experience" className="py-16 sm:py-20 lg:py-24 scroll-mt-20 md:scroll-mt-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <FadeUp>
           <p className="uppercase tracking-widest text-xs sm:text-sm font-semibold text-primary mb-2 sm:mb-3">

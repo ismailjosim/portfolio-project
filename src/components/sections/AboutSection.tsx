@@ -78,7 +78,10 @@ export default function AboutSection() {
   }, []);
 
   return (
-    <section id="about" className="sm:min-h-screen flex items-center px-2 md:px-6 py-16">
+    <section
+      id="about"
+      className="sm:min-h-screen flex items-center px-2 md:px-6 py-16 scroll-mt-20 md:scroll-mt-24"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Heading */}
         <FadeUp>

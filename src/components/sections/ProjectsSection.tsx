@@ -58,7 +58,7 @@ const ProjectsSection = () => {
   }, []);
 
   return (
-    <section id="projects" className="py-20 md:px-6 px-2">
+    <section id="projects" className="py-20 md:px-6 px-2 scroll-mt-20 md:scroll-mt-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <FadeUp>

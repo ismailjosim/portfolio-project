@@ -32,7 +32,7 @@ export default function BlogSection() {
   }, []);
 
   return (
-    <section className="py-20" id="blog">
+    <section className="py-20 scroll-mt-20 md:scroll-mt-24" id="blog">
       <div className="container mx-auto ">
         <div className="text-center mb-12">
           <FadeUp>

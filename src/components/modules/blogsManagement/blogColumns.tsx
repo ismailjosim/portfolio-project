@@ -16,8 +16,8 @@ export const blogColumns: Column<IBlog>[] = [
   {
     header: 'Blog',
     accessor: (blog) => (
-      <div className="flex items-center gap-3">
-        <div className="relative w-10 h-10 shrink-0">
+      <div className="flex items-center gap-3 min-w-[180px] max-w-[260px]">
+        <div className="relative size-10 shrink-0 rounded-md overflow-hidden bg-muted">
           <Image
             src={
               blog.coverImage?.startsWith('blob')
@@ -30,11 +30,13 @@ export const blogColumns: Column<IBlog>[] = [
             sizes="40px"
           />
         </div>
-        <div className="flex flex-col">
-          <span className="font-medium text-sm">
-            {blog.title.length > 40 ? `${blog.title.substring(0, 40)}...` : blog.title}
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-sm truncate" title={blog.title}>
+            {blog.title}
           </span>
-          <span className="text-xs text-gray-500">{blog.slug}</span>
+          <span className="text-xs text-muted-foreground truncate" title={blog.slug}>
+            {blog.slug}
+          </span>
         </div>
       </div>
     ),
@@ -44,12 +46,15 @@ export const blogColumns: Column<IBlog>[] = [
   {
     header: 'Category',
     accessor: (blog) => (
-      <div className="flex flex-col">
-        <span className="text-sm">{blog.category}</span>
-        <span className="text-xs text-gray-500">
+      <div className="flex flex-col min-w-[110px] max-w-[160px]">
+        <span className="text-sm font-medium">{blog.category}</span>
+        <span
+          className="text-xs text-muted-foreground truncate"
+          title={blog.tags?.join(', ') || ''}
+        >
           {blog.tags && blog.tags.length > 0
-            ? blog.tags.slice(0, 3).join(', ') +
-              (blog.tags.length > 3 ? `, +${blog.tags.length - 4} more` : '')
+            ? blog.tags.slice(0, 2).join(', ') +
+              (blog.tags.length > 2 ? `, +${blog.tags.length - 2}` : '')
             : 'No tags'}
         </span>
       </div>
@@ -60,19 +65,19 @@ export const blogColumns: Column<IBlog>[] = [
   {
     header: 'Engagement',
     accessor: (blog) => (
-      <div className="text-sm flex items-center gap-3">
-        <p className="flex items-center gap-1 text-muted-foreground">
-          <Eye size={18} />
+      <div className="text-xs flex items-center gap-2.5">
+        <p className="flex items-center gap-1 text-muted-foreground" title="Views">
+          <Eye size={15} />
           <span>{blog.views}</span>
         </p>
 
-        <p className="flex items-center gap-1 text-destructive">
-          <Heart fill="currentColor" size={18} />
+        <p className="flex items-center gap-1 text-rose-500" title="Likes">
+          <Heart fill="currentColor" size={15} />
           <span>{blog.likesCount}</span>
         </p>
 
-        <p className="flex items-center gap-1 text-accent">
-          <MessageCircleMore size={18} />
+        <p className="flex items-center gap-1 text-accent" title="Comments">
+          <MessageCircleMore size={15} />
           <span>{blog.commentsCount}</span>
         </p>
       </div>
@@ -101,17 +106,17 @@ export const blogColumns: Column<IBlog>[] = [
     header: 'Status',
     accessor: (blog) => {
       const statusStyles: Record<string, string> = {
-        review: 'bg-blue-500/20 text-blue-600',
-        scheduled: 'bg-purple-500/20 text-purple-600',
-        published: 'bg-green-500/20 text-green-600',
-        draft: 'bg-yellow-500/20 text-yellow-600',
-        archived: 'bg-gray-500/20 text-gray-500',
+        review: 'bg-blue-500/15 text-blue-500 border-blue-500/30',
+        scheduled: 'bg-purple-500/15 text-purple-500 border-purple-500/30',
+        published: 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+        draft: 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+        archived: 'bg-gray-500/15 text-gray-400 border-gray-500/30',
       };
 
       return (
         <span
-          className={`px-2 py-1 text-xs rounded-full capitalize ${
-            statusStyles[blog.status] || 'bg-gray-500/20 text-gray-500'
+          className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border capitalize ${
+            statusStyles[blog.status] || 'bg-gray-500/15 text-gray-400 border-gray-500/30'
           }`}
         >
           {blog.status}
