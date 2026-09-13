@@ -30,10 +30,9 @@ export default function BlogCommentsSection({
 
   const fetchComments = useCallback(async () => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/blogs/${encodeURIComponent(slug)}/comments`,
-        { cache: 'no-store' }
-      );
+      const res = await fetch(`/api/blogs/${encodeURIComponent(slug)}/comments`, {
+        cache: 'no-store',
+      });
 
       const data = await res.json();
       const loaded: FlatComment[] = data.comments || [];
@@ -61,14 +60,11 @@ export default function BlogCommentsSection({
       }
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/blogs/${encodeURIComponent(slug)}/comments`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: author, content: body, parentId }),
-          }
-        );
+        const res = await fetch(`/api/blogs/${encodeURIComponent(slug)}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: author, content: body, parentId }),
+        });
 
         const posted = await res.json();
 
@@ -128,9 +124,7 @@ export default function BlogCommentsSection({
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/blogs/${encodeURIComponent(
-            slug
-          )}/comments/${commentId}/likes`,
+          `/api/blogs/${encodeURIComponent(slug)}/comments/${commentId}/likes`,
           { method: 'PATCH' }
         );
 

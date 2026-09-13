@@ -6,9 +6,57 @@ import { ThemeProvider } from '../providers/theme-provider';
 import { CustomThemeProvider } from '../providers/custom-theme-provider';
 import { getGlobalThemeSettings } from '../lib/theme-settings';
 
+import { siteConfig } from '../constants/site-config';
+
 export const metadata: Metadata = {
-  title: 'JASIM - Full Stack Developer & Instructor',
-  description: 'Full Stack Developer | Programmer | Instructor',
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} — ${siteConfig.headline}`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.bio,
+  applicationName: `${siteConfig.name} Portfolio`,
+  keywords: siteConfig.keywords,
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteConfig.url,
+    siteName: `${siteConfig.name} Portfolio`,
+    title: `${siteConfig.name} — ${siteConfig.headline}`,
+    description: siteConfig.bio,
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — ${siteConfig.role}`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${siteConfig.name} — ${siteConfig.headline}`,
+    description: siteConfig.bio,
+    creator: '@ismail_josim',
+    images: ['/opengraph-image'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/ismailjosim.ico' },
@@ -17,6 +65,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png' }],
   },
+  category: 'technology',
 };
 
 export default async function RootLayout({

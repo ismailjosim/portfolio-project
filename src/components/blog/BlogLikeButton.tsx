@@ -26,13 +26,10 @@ export default function BlogLikeButton({ initialCount, slug }: BlogLikeButtonPro
       try {
         setIsCheckingLike(true);
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/blogs/${encodeURIComponent(slug)}/likes`,
-          {
-            method: 'GET',
-            cache: 'no-store',
-          }
-        );
+        const response = await fetch(`/api/blogs/${encodeURIComponent(slug)}/likes`, {
+          method: 'GET',
+          cache: 'no-store',
+        });
 
         const data = await response.json();
 
@@ -61,12 +58,9 @@ export default function BlogLikeButton({ initialCount, slug }: BlogLikeButtonPro
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/blogs/${encodeURIComponent(slug)}/likes`,
-        {
-          method: 'PATCH',
-        }
-      );
+      const response = await fetch(`/api/blogs/${encodeURIComponent(slug)}/likes`, {
+        method: 'PATCH',
+      });
 
       const data = await response.json();
 

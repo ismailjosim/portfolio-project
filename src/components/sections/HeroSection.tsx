@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
-import { Mail, Layers, Trophy, GithubIcon, Code2, FileCheck, Users } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Mail, Layers, Trophy, GithubIcon, Code2, FileCheck, Users, FileText } from 'lucide-react';
 import { ReactTyped } from 'react-typed';
 import SocialIcons from '../shared/SocialIcons';
+import ResumeModal from '../ui/ResumeModal';
 
 const TYPED_TEXTS = [
   'Full Stack Developer',
@@ -62,6 +63,8 @@ const BADGES = [
 ];
 
 export default function HeroSection() {
+  const [isResumeOpen, setIsResumeOpen] = useState(false);
+
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -73,139 +76,161 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section
-      id="home"
-      className="relative overflow-hidden min-h-screen flex items-center px-6 md:px-16 pt-32 lg:pt-10 scroll-mt-24 bg-linear-to-br from-background to-secondary/40"
-    >
-      {/* Background Blobs */}
-      <div className="absolute -top-24 -right-16 w-100 h-100 bg-primary/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 left-20 w-70 h-70 bg-accent/20 rounded-full blur-3xl" />
+    <>
+      <ResumeModal open={isResumeOpen} onOpenChange={setIsResumeOpen} />
 
-      <div className="relative z-10 container mx-auto flex flex-col-reverse lg:grid lg:grid-cols-2 gap-12 items-center">
-        {/* LEFT CONTENT */}
-        <div>
-          <p className="uppercase tracking-widest text-sm font-semibold text-primary mb-4">
-            👋 Hello, I&apos;m
-          </p>
+      <section
+        id="home"
+        className="relative overflow-hidden min-h-screen flex items-center px-6 md:px-16 pt-32 lg:pt-10 scroll-mt-24 bg-linear-to-br from-background to-secondary/40"
+      >
+        {/* Background Blobs */}
+        <div className="absolute -top-24 -right-16 w-100 h-100 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-20 w-70 h-70 bg-accent/20 rounded-full blur-3xl" />
 
-          <h1 className="text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-3">
-            Md. Jasim
-          </h1>
+        <div className="relative z-10 container mx-auto flex flex-col-reverse lg:grid lg:grid-cols-2 gap-12 items-center">
+          {/* LEFT CONTENT */}
+          <div>
+            {/* Availability Pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-foreground mb-4">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              </span>
+              <span>Available for Remote Roles & Consulting</span>
+              <span className="text-muted-foreground hidden sm:inline">• Dhaka (GMT+6)</span>
+            </div>
 
-          <div className="flex items-center gap-2 text-2xl font-semibold text-muted-foreground mb-6 min-h-8">
-            <ReactTyped
-              strings={TYPED_TEXTS}
-              typeSpeed={50}
-              backSpeed={50}
-              startDelay={1200}
-              backDelay={1500}
-              loop
-              className="text-primary"
-              cursorChar="🚀"
-            />
-          </div>
+            <p className="uppercase tracking-widest text-sm font-semibold text-primary mb-2">
+              👋 Hello, I&apos;m
+            </p>
 
-          <p className="text-muted-foreground text-lg max-w-xl leading-relaxed mb-8">
-            Full Stack Developer & Senior Web Instructor at{' '}
-            <a
-              href="https://web.programming-hero.com/home"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary font-semibold hover:underline"
-            >
-              Programming Hero
-            </a>
-            <br />I build scalable web apps with React, Node.js, and MongoDB — and help 2000+
-            students do the same.
-          </p>
+            <h1 className="text-5xl md:text-6xl font-extrabold text-foreground leading-tight mb-3">
+              Md. Jasim
+            </h1>
 
-          {/* ACTION BUTTONS */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <a
-              href="mailto:ismailjosim@yahoo.com"
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105"
-            >
-              <Mail size={16} />
-              Hire Me
-            </a>
+            <div className="flex items-center gap-2 text-2xl font-semibold text-muted-foreground mb-6 min-h-8">
+              <ReactTyped
+                strings={TYPED_TEXTS}
+                typeSpeed={50}
+                backSpeed={50}
+                startDelay={1200}
+                backDelay={1500}
+                loop
+                className="text-primary"
+                cursorChar="🚀"
+              />
+            </div>
 
-            <button
-              onClick={() => scrollToSection('projects')}
-              className="flex items-center gap-2 border border-primary text-primary px-6 py-3 rounded-2xl font-semibold transition-colors hover:bg-primary hover:text-white"
-            >
-              <Layers size={16} />
-              View Projects
-            </button>
-          </div>
+            <p className="text-muted-foreground text-lg max-w-xl leading-relaxed mb-8">
+              Full Stack Developer & Senior Web Instructor at{' '}
+              <a
+                href="https://web.programming-hero.com/home"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-semibold hover:underline"
+              >
+                Programming Hero
+              </a>
+              <br />I build scalable web apps with React, Node.js, and MongoDB — and help 2000+
+              students do the same.
+            </p>
 
-          {/* SOCIAL ICONS */}
-          <div className="flex items-center gap-5 mb-12">
-            <SocialIcons.Github />
-            <SocialIcons.Linkedin />
-            <SocialIcons.Facebook />
-            <SocialIcons.Twitter />
-            <SocialIcons.Youtube />
-            <SocialIcons.Email />
-          </div>
+            {/* ACTION BUTTONS */}
+            <div className="flex flex-wrap gap-4 mb-6">
+              <a
+                href="mailto:ismailjosim@yahoo.com"
+                className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 shadow-md shadow-primary/20"
+              >
+                <Mail size={16} />
+                Hire Me
+              </a>
 
-          {/* STATS */}
-          <div className="flex flex-wrap sm:justify-start justify-center items-center gap-12 lg:gap-8">
-            {STATS.map((stat, index) => (
-              <div key={stat.label} className="flex items-center gap-8">
-                {index > 0 && <div className="hidden sm:block w-px h-10 bg-border" />}
-                <div className="text-center">
-                  <div className="text-3xl font-extrabold text-primary">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              <button
+                onClick={() => setIsResumeOpen(true)}
+                className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 cursor-pointer hover:border-primary/40"
+              >
+                <FileText size={16} className="text-primary" />
+                View Resume
+              </button>
 
-        {/* RIGHT CONTENT */}
-        <div className="flex justify-center lg:justify-end w-full">
-          <div className="relative">
-            {/* Profile Image */}
-            <div
-              className="hero-morph w-80 h-80 md:w-110 md:h-110 lg:w-150 lg:h-150 bg-center bg-cover"
-              style={{ backgroundImage: "url('/person.jpeg')" }}
-              role="img"
-              aria-label="Md. Jasim profile image"
-            />
+              <button
+                onClick={() => scrollToSection('projects')}
+                className="flex items-center gap-2 border border-primary text-primary px-6 py-3 rounded-2xl font-semibold transition-colors hover:bg-primary hover:text-white cursor-pointer"
+              >
+                <Layers size={16} />
+                View Projects
+              </button>
+            </div>
 
-            {/* Glow */}
-            <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10" />
+            {/* SOCIAL ICONS */}
+            <div className="flex items-center gap-5 mb-12">
+              <SocialIcons.Github />
+              <SocialIcons.Linkedin />
+              <SocialIcons.Facebook />
+              <SocialIcons.Twitter />
+              <SocialIcons.Youtube />
+              <SocialIcons.Email />
+            </div>
 
-            {/* Floating Badges */}
-            <div className="sm:block hidden">
-              {BADGES.map((badge, i) => {
-                const Icon = badge.icon;
-
-                return (
-                  <div
-                    key={i}
-                    className={`absolute ${badge.position} bg-card shadow-xl rounded-2xl p-4 flex items-center gap-3 float-y`}
-                  >
-                    <div
-                      className={`w-10 h-10 ${badge.iconBg} rounded-2xl flex items-center justify-center shrink-0`}
-                    >
-                      <Icon size={18} className={badge.iconColor} />
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-foreground whitespace-nowrap">
-                        {badge.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground whitespace-nowrap">
-                        {badge.subtitle}
-                      </div>
-                    </div>
+            {/* STATS */}
+            <div className="flex flex-wrap sm:justify-start justify-center items-center gap-12 lg:gap-8">
+              {STATS.map((stat, index) => (
+                <div key={stat.label} className="flex items-center gap-8">
+                  {index > 0 && <div className="hidden sm:block w-px h-10 bg-border" />}
+                  <div className="text-center">
+                    <div className="text-3xl font-extrabold text-primary">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT CONTENT */}
+          <div className="flex justify-center lg:justify-end w-full">
+            <div className="relative">
+              {/* Profile Image */}
+              <div
+                className="hero-morph w-80 h-80 md:w-110 md:h-110 lg:w-150 lg:h-150 bg-center bg-cover"
+                style={{ backgroundImage: "url('/person.jpeg')" }}
+                role="img"
+                aria-label="Md. Jasim profile image"
+              />
+
+              {/* Glow */}
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10" />
+
+              {/* Floating Badges */}
+              <div className="sm:block hidden">
+                {BADGES.map((badge, i) => {
+                  const Icon = badge.icon;
+
+                  return (
+                    <div
+                      key={i}
+                      className={`absolute ${badge.position} bg-card shadow-xl rounded-2xl p-4 flex items-center gap-3 float-y`}
+                    >
+                      <div
+                        className={`w-10 h-10 ${badge.iconBg} rounded-2xl flex items-center justify-center shrink-0`}
+                      >
+                        <Icon size={18} className={badge.iconColor} />
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-foreground whitespace-nowrap">
+                          {badge.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground whitespace-nowrap">
+                          {badge.subtitle}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

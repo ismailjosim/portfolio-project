@@ -19,9 +19,7 @@ export default function RelatedBlogs({ currentBlogId, category }: RelatedBlogsPr
   useEffect(() => {
     const fetchRelatedBlogs = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/blogs?category=${encodeURIComponent(category)}`
-        );
+        const response = await fetch(`/api/blogs?category=${encodeURIComponent(category)}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch related blogs');

@@ -16,11 +16,11 @@ export default function BlogSection() {
     const fetchBlogs = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/all-blog/public?page=1&limit=6&sortBy=createdAt&orderBy=desc`
+          '/api/all-blog/public?page=1&limit=6&sortBy=createdAt&orderBy=desc'
         );
         const data = await response.json();
 
-        setBlogs(data.blogs);
+        setBlogs(data.blogs || []);
       } catch (error) {
         console.error('Failed to fetch blogs:', error);
       } finally {

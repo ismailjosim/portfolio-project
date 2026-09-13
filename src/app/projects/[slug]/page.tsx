@@ -20,8 +20,64 @@ import { Button } from '@/src/components/ui/button';
 import { formatDateTime } from '@/src/lib/formatters.ts';
 import { getSingleProjectBySlug } from '@/src/services/project-management';
 
+import type { Metadata } from 'next';
+import { siteConfig } from '@/src/constants/site-config';
+import { BreadcrumbJsonLd, SoftwareAppJsonLd } from '@/src/components/seo/JsonLd';
+
 interface ProjectDetailsPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: ProjectDetailsPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getSingleProjectBySlug(slug);
+
+  if (!result.success || !result.data) {
+    return {
+      title: 'Project Not Found',
+      description: 'The requested project case study could not be found.',
+    };
+  }
+
+  const project = result.data;
+  const pageTitle = `${project.title || project.name} — Project Case Study`;
+  const pageDescription =
+    project.subtitle ||
+    project.description ||
+    `Explore ${project.name} built with ${project.technologies?.slice(0, 5).join(', ')}. Engineered by ${siteConfig.name}.`;
+
+  const ogImages = project.image
+    ? [{ url: project.image, alt: project.name }]
+    : ['/opengraph-image'];
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    keywords: [
+      project.name,
+      ...(project.technologies || []),
+      'Case Study',
+      'Web Development',
+      'Full Stack Project',
+      'Software Engineering',
+    ],
+    alternates: {
+      canonical: `/projects/${slug}`,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: `${siteConfig.url}/projects/${slug}`,
+      type: 'article',
+      images: ogImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: pageTitle,
+      description: pageDescription,
+      images: project.image ? [project.image] : ['/opengraph-image'],
+    },
+  };
 }
 
 function getRepoLinks(project: {
@@ -92,6 +148,20 @@ export default async function ProjectDetailsPage({ params }: ProjectDetailsPageP
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Projects', url: '/all-projects' },
+          { name: project.title || project.name, url: `/projects/${slug}` },
+        ]}
+      />
+      <SoftwareAppJsonLd
+        name={project.title || project.name}
+        description={project.subtitle || project.description || ''}
+        url={`/projects/${slug}`}
+        image={previewImage}
+        technologies={technologies}
+      />
       <header>
         <Navbar />
       </header>

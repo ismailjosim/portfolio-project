@@ -12,9 +12,29 @@ import TablePagination from '@/src/components/shared/TablePagination';
 import { BlogFilterSkeleton } from '@/src/components/shared/PublicDataSkeletons';
 import { getPublishedBlogs } from '@/src/services/blog-management';
 
+import { siteConfig } from '@/src/constants/site-config';
+import { BreadcrumbJsonLd } from '@/src/components/seo/JsonLd';
+
 export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Read my latest articles and insights',
+  title: 'Engineering Articles & Technical Insights',
+  description:
+    'Deep dives into Full Stack development, Next.js, React 19, TypeScript, MongoDB architecture, API design, and practical software engineering tutorials by Md. Jasim.',
+  alternates: {
+    canonical: '/blogs',
+  },
+  openGraph: {
+    title: `Engineering Articles & Technical Insights | ${siteConfig.name}`,
+    description:
+      'Deep dives into Full Stack development, Next.js, React, TypeScript, and software architecture by Md. Jasim.',
+    url: `${siteConfig.url}/blogs`,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Engineering Articles & Technical Insights | ${siteConfig.name}`,
+    description:
+      'Deep dives into Full Stack development, Next.js, React, TypeScript, and software architecture by Md. Jasim.',
+  },
 };
 
 export default async function BlogsPage(props: {
@@ -43,6 +63,12 @@ export default async function BlogsPage(props: {
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blogs' },
+        ]}
+      />
       <header>
         <Navbar />
       </header>

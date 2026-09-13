@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Search, FileText } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import ThemeToggle from '../ui/ThemeToggle';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import CommandPalette from '../ui/CommandPalette';
+import ResumeModal from '../ui/ResumeModal';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -26,6 +28,8 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('#home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isResumeOpen, setIsResumeOpen] = useState(false);
 
   const isHomePage = pathname === '/';
 
@@ -145,7 +149,33 @@ export default function Navbar() {
 
         {/* ── Right actions ── */}
         <div className="flex items-center gap-2">
+          {/* Command Palette Trigger */}
+          <button
+            onClick={() => setIsCommandOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-border/70 bg-background/60 hover:bg-muted text-xs text-muted-foreground hover:text-foreground transition-all cursor-pointer shadow-2xs"
+            aria-label="Open command palette"
+            title="Command Menu (Cmd+K)"
+          >
+            <Search size={13} className="text-primary" />
+            <span className="hidden xl:inline">Search</span>
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-muted rounded border border-border">
+              ⌘K
+            </kbd>
+          </button>
+
+          {/* Quick CV Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsResumeOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 rounded-xl text-xs h-8 border-primary/40 hover:bg-primary/10 hover:text-primary cursor-pointer"
+          >
+            <FileText size={13} className="text-primary" />
+            Resume
+          </Button>
+
           <ThemeToggle />
+
           {/* Mobile / tablet menu — visible below lg */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -160,6 +190,33 @@ export default function Navbar() {
             </SheetTrigger>
 
             <SheetContent side="top" className="pt-16 rounded-b-3xl border-border bg-background">
+              <div className="flex items-center gap-2 pb-4 mb-3 border-b border-border">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsCommandOpen(true);
+                  }}
+                  className="w-full gap-2 text-xs rounded-xl"
+                >
+                  <Search size={14} className="text-primary" />
+                  Commands (⌘K)
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsResumeOpen(true);
+                  }}
+                  className="w-full gap-2 text-xs rounded-xl bg-primary text-primary-foreground"
+                >
+                  <FileText size={14} />
+                  Resume
+                </Button>
+              </div>
+
               <ul className="flex flex-col gap-1">
                 {navItems.map((item) => (
                   <li key={item.name}>
@@ -184,6 +241,14 @@ export default function Navbar() {
           </Sheet>
         </div>
       </nav>
+
+      {/* Global Command Palette & Resume Modals */}
+      <CommandPalette
+        open={isCommandOpen}
+        onOpenChange={setIsCommandOpen}
+        onOpenResume={() => setIsResumeOpen(true)}
+      />
+      <ResumeModal open={isResumeOpen} onOpenChange={setIsResumeOpen} />
     </header>
   );
 }

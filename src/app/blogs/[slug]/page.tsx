@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import {
   Heart,
   MessageCircle,
@@ -9,11 +10,17 @@ import {
   ChevronLeft,
   BookOpen,
   FileText,
+  Clock,
 } from 'lucide-react';
 
 import BlogLikeButton from '@/src/components/blog/BlogLikeButton';
 import BlogCommentsSection from '@/src/components/blog/BlogCommentsSection';
 import RelatedBlogs from '@/src/components/blog/RelatedBlogs';
+import BlogReadingProgress from '@/src/components/blog/BlogReadingProgress';
+import BlogShareBar from '@/src/components/blog/BlogShareBar';
+import { calculateReadingTime } from '@/src/lib/reading-time';
+import { siteConfig } from '@/src/constants/site-config';
+import { BreadcrumbJsonLd, BlogPostingJsonLd } from '@/src/components/seo/JsonLd';
 
 import { formatDateTime } from '@/src/lib/formatters.ts';
 import { getSingleBlogBySlug } from '@/src/services/blog-management';
@@ -23,6 +30,62 @@ import MarkdownPreview from '@/src/components/blog/MarkdownPreview';
 
 interface BlogDetailsPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: BlogDetailsPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await getSingleBlogBySlug(slug);
+
+  if (!result.success || !result.data) {
+    return {
+      title: 'Article Not Found',
+      description: 'The requested technical article could not be found.',
+    };
+  }
+
+  const blog = result.data;
+  const pageTitle = blog.title;
+  const pageDescription =
+    blog.summary ||
+    (blog.content ? blog.content.slice(0, 160).replace(/[#*`_\[\]]/g, '') : '') ||
+    `Read ${blog.title} by ${siteConfig.name}`;
+
+  const ogImages = blog.coverImage
+    ? [{ url: blog.coverImage, alt: blog.title }]
+    : ['/opengraph-image'];
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    keywords: [
+      blog.category,
+      ...(blog.tags || []),
+      'Technical Blog',
+      'Web Development Tutorial',
+      'Software Engineering',
+    ],
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    alternates: {
+      canonical: `/blogs/${slug}`,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: `${siteConfig.url}/blogs/${slug}`,
+      type: 'article',
+      publishedTime: blog.publishedAt ? new Date(blog.publishedAt).toISOString() : undefined,
+      modifiedTime: blog.updatedAt ? new Date(blog.updatedAt).toISOString() : undefined,
+      authors: [siteConfig.name],
+      tags: blog.tags,
+      images: ogImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: pageTitle,
+      description: pageDescription,
+      images: blog.coverImage ? [blog.coverImage] : ['/opengraph-image'],
+    },
+  };
 }
 
 async function incrementViews(slug: string) {
@@ -68,6 +131,28 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
 
   return (
     <>
+      <BlogReadingProgress />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blogs' },
+          { name: blog.title, url: `/blogs/${slug}` },
+        ]}
+      />
+      <BlogPostingJsonLd
+        title={blog.title}
+        description={blog.summary || blog.title}
+        url={`/blogs/${slug}`}
+        image={blog.coverImage}
+        datePublished={
+          blog.publishedAt
+            ? new Date(blog.publishedAt).toISOString()
+            : new Date(blog.createdAt!).toISOString()
+        }
+        dateModified={blog.updatedAt ? new Date(blog.updatedAt).toISOString() : undefined}
+        tags={blog.tags}
+      />
+
       {/* Top Breadcrumb */}
       <div className="sticky top-0 z-40 bg-background/90 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-3">
@@ -136,6 +221,11 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
               </div>
 
               <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{calculateReadingTime(blog.content)}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
                 <span>{blog.views + 1} views</span>
               </div>
@@ -168,6 +258,9 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
               </div>
             </>
           )}
+
+          {/* Share Article Bar */}
+          <BlogShareBar title={blog.title} slug={slug} />
 
           {/* Actions */}
           <div className="border-y py-6 mb-10 flex flex-wrap items-center gap-4">
