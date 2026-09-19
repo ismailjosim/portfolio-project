@@ -1,22 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useMemo } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import SkillIcon from '../shared/SkillIcon';
+import type { SkillItem } from '../../types/skill.interface';
 
-export interface SkillItem {
-  _id: string;
-  name: string;
-  category: string;
-  icon?: string;
-  proficiency: string;
-  description?: string;
-  order?: number;
-}
+// Re-export for convenience
+export type { SkillItem };
 
 interface OrbitalSkillCardProps {
   label: string;
-  icon: any;
+  icon: LucideIcon | React.ComponentType<{ size?: number; className?: string }>;
   skills: SkillItem[];
   categoryKey: string;
 }
@@ -81,8 +75,8 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
   // Sort skills strictly by proficiency rank: Expert 1st -> Advanced -> Intermediate -> Beginner
   const rankedSkills = useMemo(() => {
     return [...skills].sort((a, b) => {
-      const rankA = PROFICIENCY_RANK[a.proficiency?.toLowerCase()] ?? 99;
-      const rankB = PROFICIENCY_RANK[b.proficiency?.toLowerCase()] ?? 99;
+      const rankA = PROFICIENCY_RANK[(a.proficiency || '').toLowerCase()] ?? 99;
+      const rankB = PROFICIENCY_RANK[(b.proficiency || '').toLowerCase()] ?? 99;
       if (rankA !== rankB) return rankA - rankB;
       return (a.order ?? 0) - (b.order ?? 0);
     });
@@ -171,7 +165,7 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
                 >
                   {/* Counter-rotate icon container so icons remain upright */}
                   <div className="animate-counter-orbit">
-                    <div className="group/sat relative flex items-center justify-center w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-white/20 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/20 hover:scale-125 hover:shadow-xl dark:hover:drop-shadow-[0_0_20px_rgba(1,180,186,0.85)] cursor-pointer shadow-md dark:shadow-sm">
+                    <div className="group/sat relative flex items-center justify-center w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-2xl bg-white dark:bg-slate-800/85 border border-slate-200/90 dark:border-white/20 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/20 hover:scale-125 hover:shadow-xl dark:hover:drop-shadow-[0_0_20px_rgba(1,180,186,0.85)] cursor-pointer shadow-md dark:shadow-sm">
                       {/* Floating Tooltip pointing outward (below for bottom icons, above for top icons) */}
                       <div
                         className={`absolute left-1/2 -translate-x-1/2 opacity-0 group-hover/sat:opacity-100 transition-all duration-200 pointer-events-none z-50 px-2.5 py-1 rounded-md bg-slate-950 dark:bg-slate-900 text-white text-xs font-semibold tracking-wide whitespace-nowrap shadow-2xl border border-white/20 ${
@@ -181,7 +175,7 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
                         {skill.name}
                       </div>
 
-                      <SkillIcon icon={skill.icon} size={22} className="text-lg shrink-0" />
+                      <SkillIcon icon={skill.icon} size={26} className="shrink-0" />
                     </div>
                   </div>
                 </div>

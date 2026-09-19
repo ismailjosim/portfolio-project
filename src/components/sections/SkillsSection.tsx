@@ -1,28 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
+import { LayoutGrid, Orbit, type LucideIcon } from 'lucide-react';
 import { getIcon } from '../../lib/iconMapper';
 import FadeUp from '../ui/FadeUp';
 import { EmptyState, SkillsSkeleton } from '../shared/PublicDataSkeletons';
 import OrbitalSkillCard from './OrbitalSkillCard';
-
-interface Skill {
-  _id: string;
-  name: string;
-  category: string;
-  icon?: string;
-  proficiency: string;
-  description?: string;
-  order?: number;
-}
+import HoverGlowSkillCard from './HoverGlowSkillCard';
+import type { SkillItem } from '../../types/skill.interface';
 
 interface SkillGroupData {
   key: string;
   label: string;
-  icon: any;
+  icon: LucideIcon;
   order: number;
-  skills: Skill[];
+  skills: SkillItem[];
 }
 
 interface CategoryConfig {
@@ -78,6 +70,7 @@ function normalizeCategory(rawCat: string): {
 export default function SkillsSection() {
   const [skillGroups, setSkillGroups] = useState<SkillGroupData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [layoutMode, setLayoutMode] = useState<'bento' | 'orbitals'>('bento');
 
   useEffect(() => {
     async function fetchSkills() {
@@ -89,10 +82,10 @@ export default function SkillsSection() {
           // Group skills by normalized category
           const grouped: Record<
             string,
-            { key: string; label: string; iconName: string; order: number; skills: Skill[] }
+            { key: string; label: string; iconName: string; order: number; skills: SkillItem[] }
           > = {};
 
-          data.skills.forEach((skill: Skill) => {
+          data.skills.forEach((skill: SkillItem) => {
             const catInfo = normalizeCategory(skill.category);
             const groupKey = catInfo.key;
             if (!grouped[groupKey]) {
@@ -133,14 +126,46 @@ export default function SkillsSection() {
   return (
     <section id="skills" className="py-24 scroll-mt-20 md:scroll-mt-24">
       <div className="container mx-auto px-6">
-        {/* Header */}
+        {/* Header with Layout View Switcher */}
         <FadeUp>
-          <p className="text-xs font-semibold tracking-widest uppercase text-accent mb-2">
-            What I work with
-          </p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-foreground mb-16">
-            Technical Skills
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-16">
+            <div>
+              <p className="text-xs font-semibold tracking-widest uppercase text-accent mb-2">
+                What I work with
+              </p>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-foreground">
+                Technical Skills
+              </h2>
+            </div>
+
+            {/* Layout Toggle: Bento vs Orbitals */}
+            <div className="inline-flex items-center p-1 rounded-xl bg-muted/60 border border-border/80 self-start sm:self-auto shadow-xs">
+              <button
+                type="button"
+                onClick={() => setLayoutMode('bento')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  layoutMode === 'bento'
+                    ? 'bg-background text-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <LayoutGrid size={14} />
+                <span>Bento Grid</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLayoutMode('orbitals')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  layoutMode === 'orbitals'
+                    ? 'bg-background text-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Orbit size={14} />
+                <span>All Orbitals</span>
+              </button>
+            </div>
+          </div>
         </FadeUp>
 
         {/* Skill Groups */}
@@ -153,8 +178,39 @@ export default function SkillsSection() {
               title="No skills published yet"
               description="The skill matrix will appear here after published skills are added."
             />
+          ) : layoutMode === 'bento' ? (
+            /* ── MODERN ASYMMETRIC BENTO GRID ── */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {skillGroups.map((group, index) => {
+                // First category (Languages / Core Stack) is the 2-column featured Orbital Hero
+                if (index === 0) {
+                  return (
+                    <div key={group.key} className="md:col-span-2 lg:col-span-2">
+                      <OrbitalSkillCard
+                        label={group.label}
+                        icon={group.icon}
+                        skills={group.skills}
+                        categoryKey={group.key}
+                      />
+                    </div>
+                  );
+                }
+
+                // Remaining categories are sleek Hover-Glow Grid cards
+                return (
+                  <HoverGlowSkillCard
+                    key={group.key}
+                    label={group.label}
+                    icon={group.icon}
+                    skills={group.skills}
+                    categoryKey={group.key}
+                  />
+                );
+              })}
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            /* ── ALL ORBITALS VIEW ── */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {skillGroups.map((group) => (
                 <OrbitalSkillCard
                   key={group.key}

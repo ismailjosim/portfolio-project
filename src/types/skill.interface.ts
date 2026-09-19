@@ -118,3 +118,17 @@ export interface SkillGroupView {
 
 /** Full page payload — all groups sorted by category.order */
 export type SkillsPageData = SkillGroupView[];
+
+/** Frontend Skill item model returned from /api/skills and consumed by skill cards */
+export interface SkillItem {
+  _id: string;
+  name: string;
+  category: string;
+  icon?: string;
+  proficiency?: 'beginner' | 'intermediate' | 'advanced' | 'expert' | string;
+  description?: string;
+  yearsOfExperience?: number;
+  isPublished?: boolean;
+  order?: number;
+}
+
