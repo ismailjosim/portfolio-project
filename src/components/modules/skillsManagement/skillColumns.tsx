@@ -3,14 +3,18 @@
 import { Column } from '../../data-table';
 import { ISkill } from '@/src/models/Skill';
 import { DateCell } from '../../shared/DateCell';
+import SkillIcon from '../../shared/SkillIcon';
 
 const skillColumns: Column<ISkill>[] = [
   {
     header: 'Skill',
     accessor: (skill) => (
-      <div className="flex flex-col">
-        <span className="font-medium text-sm">{skill.name}</span>
-        <span className="text-xs text-gray-500">{skill.category}</span>
+      <div className="flex items-center gap-3">
+        <SkillIcon icon={skill.icon} className="text-xl" size={24} />
+        <div className="flex flex-col">
+          <span className="font-medium text-sm">{skill.name}</span>
+          <span className="text-xs text-muted-foreground">{skill.category}</span>
+        </div>
       </div>
     ),
     sortKey: 'name',

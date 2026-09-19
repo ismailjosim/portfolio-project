@@ -20,6 +20,7 @@ import InfoRow from '../../shared/InfoRow';
 import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
 import { formatDateTime } from '../../../lib/formatters.ts';
+import { useTheme } from 'next-themes';
 
 // Dynamically import MDEditor preview to avoid SSR issues
 const MDPreview = dynamic(
@@ -35,6 +36,7 @@ interface IBlogViewDialogProps {
 
 const BlogViewDetailDialog = ({ open, onClose, blog }: IBlogViewDialogProps) => {
   const [copied, setCopied] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   if (!blog) return null;
 
@@ -177,7 +179,10 @@ const BlogViewDetailDialog = ({ open, onClose, blog }: IBlogViewDialogProps) => 
                     <BookOpen className="h-5 w-5 text-blue-600" />
                     <h3 className="font-semibold text-lg">Content</h3>
                   </div>
-                  <div className="bg-muted/50 p-4 rounded-lg" data-color-mode="dark">
+                  <div
+                    className="bg-muted/50 p-4 rounded-lg"
+                    data-color-mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                  >
                     <MDPreview
                       source={blog.content}
                       style={{

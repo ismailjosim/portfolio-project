@@ -5,6 +5,7 @@ import { Badge } from '../../ui/badge';
 import InfoRow from '../../shared/InfoRow';
 import { Separator } from '../../ui/separator';
 import { formatDateTime } from '../../../lib/formatters.ts';
+import SkillIcon from '../../shared/SkillIcon';
 
 interface ISkillViewDialogProps {
   open: boolean;
@@ -32,11 +33,13 @@ const SkillViewDetailDialog = ({ open, onClose, skill }: ISkillViewDialogProps) 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-2 pb-6">
           {/* Skill Header */}
-          <div className="flex flex-col gap-4 p-5 bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 rounded-lg mb-6">
+          <div className="flex items-center gap-5 p-5 bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 rounded-lg mb-6">
+            <div className="p-3 rounded-xl bg-background shadow-xs border border-border">
+              <SkillIcon icon={skill.icon} className="text-3xl" size={36} />
+            </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold mb-2">{skill.name}</h2>
-              <p className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
-                <Code2 className="h-4 w-4 shrink-0" />
+              <h2 className="text-2xl font-bold mb-1">{skill.name}</h2>
+              <p className="text-muted-foreground mb-3 flex items-center gap-2 text-sm">
                 <span>{skill.category}</span>
               </p>
               <Badge className={`text-sm ${proficiencyColors[skill.proficiency]}`}>

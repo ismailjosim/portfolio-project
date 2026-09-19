@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react';
 import { getIcon } from '../../lib/iconMapper';
 import FadeUp from '../ui/FadeUp';
-import { SkillGroup } from '../../interface/content.interface';
 import { EmptyState, SkillsSkeleton } from '../shared/PublicDataSkeletons';
+import SkillIcon from '../shared/SkillIcon';
 
 interface Skill {
   _id: string;
@@ -17,8 +17,11 @@ interface Skill {
   order?: number;
 }
 
-interface SkillGroupData extends SkillGroup {
-  skills: (Omit<Skill, 'icon'> & { icon: any })[];
+interface SkillGroupData {
+  label: string;
+  icon: any;
+  order: number;
+  skills: Skill[];
 }
 
 interface CategoryConfig {
@@ -108,10 +111,8 @@ export default function SkillsSection() {
             .map((group) => ({
               label: group.label,
               icon: getIcon(group.iconName),
-              skills: group.skills.map((skill) => ({
-                ...skill,
-                icon: getIcon(skill.icon),
-              })),
+              order: group.order,
+              skills: group.skills,
             }));
 
           setSkillGroups(sortedGroups);
@@ -166,13 +167,14 @@ export default function SkillsSection() {
 
                   {/* Skills */}
                   <div className="flex flex-wrap gap-3">
-                    {skills.map(({ _id, name, icon: SkillIcon }) => (
+                    {skills.map(({ _id, name, icon }) => (
                       <div
                         key={_id}
-                        className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-muted text-muted-foreground hover:bg-primary hover:text-white transition group cursor-default"
+                        className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-muted text-muted-foreground hover:bg-primary hover:text-white transition group cursor-default"
                       >
                         <SkillIcon
-                          size={16}
+                          icon={icon}
+                          size={18}
                           className="text-primary group-hover:text-white transition"
                         />
                         <span className="text-sm font-medium">{name}</span>

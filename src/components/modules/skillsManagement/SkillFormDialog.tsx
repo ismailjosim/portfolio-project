@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, Search, Check, Loader2 } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import * as LucideIcons from 'lucide-react';
 
 // shadcn ui
 import { Input } from '../../ui/input';
@@ -26,12 +25,11 @@ import {
 } from '../../ui/select';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
-import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 
 import { createSkill, updateSkill, ISkillPayload } from '../../../services/skill-management';
-
 import { ISkill } from '../../../models/Skill';
 import { SkillCategoryDTO } from '@/src/types/skill.interface';
+import TechIconPicker from './TechIconPicker';
 
 // ─── Constants ─────────────────────────────────────────────
 
@@ -42,219 +40,15 @@ const PROFICIENCY_LEVELS = [
   { value: 'expert', label: 'Expert' },
 ];
 
-/**
- * Curated list of Lucide icons relevant for a dev portfolio.
- * Add or remove names as needed — they must match lucide-react exports exactly.
- */
-const ICON_LIST: string[] = [
-  // Languages & code
-  'Code2',
-  'CodeXml',
-  'FileCode',
-  'FileCode2',
-  'Braces',
-  'Hash',
-  'Terminal',
-  'Cpu',
-  'Binary',
-  'Sigma',
-  // Web & network
-  'Globe',
-  'Globe2',
-  'Wifi',
-  'Server',
-  'Cloud',
-  'CloudCog',
-  'Link',
-  'Link2',
-  'Rss',
-  'Network',
-  // Data
-  'Database',
-  'DatabaseZap',
-  'HardDrive',
-  'Archive',
-  'Table',
-  'Sheet',
-  // UI & design
-  'Palette',
-  'Brush',
-  'Layers',
-  'Layout',
-  'Monitor',
-  'Smartphone',
-  'Frame',
-  'PenTool',
-  'Crop',
-  'Image',
-  // DevOps & tools
-  'GitBranch',
-  'GitMerge',
-  'GitCommit',
-  'GitPullRequest',
-  'Wrench',
-  'Settings',
-  'Settings2',
-  'Cog',
-  'Hammer',
-  'Package',
-  'PackageOpen',
-  'Box',
-  'Boxes',
-  // Security & auth
-  'Shield',
-  'ShieldCheck',
-  'ShieldAlert',
-  'Lock',
-  'Key',
-  'Fingerprint',
-  // Cloud & deploy
-  'Rocket',
-  'Zap',
-  'ZapOff',
-  'Flame',
-  'Leaf',
-  // Communication
-  'Mail',
-  'MessageSquare',
-  'Bell',
-  'Send',
-  // Payment
-  'CreditCard',
-  'Wallet',
-  'DollarSign',
-  'Receipt',
-  // Misc
-  'Blocks',
-  'LayoutDashboard',
-  'Gauge',
-  'Activity',
-  'FlaskConical',
-  'TestTube',
-  'Microscope',
-  'Puzzle',
-  'Component',
-  'Workflow',
-  'Link2',
+const DEFAULT_CATEGORIES: SkillCategoryDTO[] = [
+  { id: 'languages', label: 'Languages', slug: 'languages', iconName: 'Code2', order: 0, createdAt: '', updatedAt: '' },
+  { id: 'frontend', label: 'Frontend', slug: 'frontend', iconName: 'Globe', order: 1, createdAt: '', updatedAt: '' },
+  { id: 'backend', label: 'Backend', slug: 'backend', iconName: 'Server', order: 2, createdAt: '', updatedAt: '' },
+  { id: 'styling-ui', label: 'Styling UI', slug: 'styling-ui', iconName: 'Palette', order: 3, createdAt: '', updatedAt: '' },
+  { id: 'database', label: 'Database', slug: 'database', iconName: 'Database', order: 4, createdAt: '', updatedAt: '' },
+  { id: 'tools-devops', label: 'Tools', slug: 'tools-devops', iconName: 'Wrench', order: 5, createdAt: '', updatedAt: '' },
+  { id: 'payment-validation', label: 'Payment & Validation', slug: 'payment-validation', iconName: 'CreditCard', order: 6, createdAt: '', updatedAt: '' },
 ];
-
-// ─── Icon Picker ────────────────────────────────────────────
-
-interface IconPickerProps {
-  value: string;
-  onChange: (icon: string) => void;
-}
-
-function IconPicker({ value, onChange }: IconPickerProps) {
-  const [search, setSearch] = useState('');
-  const [open, setOpen] = useState(false);
-
-  const filtered = ICON_LIST.filter((name) => name.toLowerCase().includes(search.toLowerCase()));
-
-  const SelectedIcon = value
-    ? (LucideIcons[value as keyof typeof LucideIcons] as React.FC<{
-        size?: number;
-        className?: string;
-      }>)
-    : null;
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          className="w-full justify-start gap-2 font-normal"
-        >
-          {SelectedIcon ? (
-            <>
-              <SelectedIcon size={16} className="shrink-0 text-muted-foreground" />
-              <span>{value}</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">Pick an icon…</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-80 p-0 bg-background" align="start" side="bottom">
-        {/* Search */}
-        <div className="flex items-center gap-2 border-b px-3 py-2 bg-background">
-          <Search size={14} className="text-muted-foreground shrink-0" />
-          <input
-            type="text"
-            placeholder="Search icons…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-        </div>
-
-        {/* Grid */}
-        <div className="grid grid-cols-7 gap-1 p-2 max-h-80 overflow-y-auto scroll-smooth scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-          {filtered.length === 0 && (
-            <p className="col-span-7 text-center text-xs text-muted-foreground py-4">
-              No icons found
-            </p>
-          )}
-          {filtered.map((name) => {
-            const Icon = LucideIcons[name as keyof typeof LucideIcons] as React.FC<{
-              size?: number;
-              className?: string;
-            }>;
-            if (!Icon) return null;
-            const isSelected = value === name;
-
-            return (
-              <button
-                key={name}
-                type="button"
-                title={name}
-                onClick={() => {
-                  onChange(name);
-                  setOpen(false);
-                  setSearch('');
-                }}
-                className={`
-									relative flex items-center justify-center rounded p-2 transition-colors
-									hover:bg-accent
-									${isSelected ? 'bg-primary/10 ring-1 ring-primary' : ''}
-								`}
-              >
-                <Icon size={16} className={isSelected ? 'text-primary' : 'text-foreground'} />
-                {isSelected && (
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary">
-                    <Check size={8} className="text-primary-foreground" />
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Footer hint */}
-        <div className="border-t px-3 py-2">
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} icon{filtered.length !== 1 ? 's' : ''}
-            {value && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChange('');
-                  setOpen(false);
-                }}
-                className="ml-2 text-destructive hover:underline"
-              >
-                Clear
-              </button>
-            )}
-          </p>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -316,7 +110,7 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
         isPublished: true,
       });
     }
-  }, [skill, form]);
+  }, [skill, form, open]);
 
   const handleClose = () => {
     if (form.formState.isSubmitting) return;
@@ -332,33 +126,43 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
         proficiency: data.proficiency,
         description: data.description,
         yearsOfExperience: data.yearsOfExperience,
-        icon: data.icon || undefined,
-        isPublished: data.isPublished ?? true,
+        icon: data.icon,
+        isPublished: data.isPublished,
       };
 
-      const result =
-        isEdit && skill?._id
-          ? await updateSkill(skill._id.toString(), payload)
-          : await createSkill(payload);
-
-      if (!result.success) {
-        toast.error(result.message || 'Failed to save skill');
-        return;
+      if (isEdit && skill) {
+        const result = await updateSkill(skill._id!.toString(), payload);
+        if (result.success) {
+          toast.success(result.message || 'Skill updated successfully');
+          form.reset();
+          onSuccess();
+          onClose();
+        } else {
+          toast.error(result.message || 'Failed to update skill');
+        }
+      } else {
+        const result = await createSkill(payload);
+        if (result.success) {
+          toast.success('Skill created successfully');
+          form.reset();
+          onSuccess();
+          onClose();
+        } else {
+          toast.error(result.message || 'Failed to create skill');
+        }
       }
-
-      toast.success(isEdit ? 'Skill updated' : 'Skill created');
-      onSuccess();
-      handleClose();
     } catch {
-      toast.error('Something went wrong');
+      toast.error('An unexpected error occurred');
     }
   };
 
+  const availableCategories = categories && categories.length > 0 ? categories : DEFAULT_CATEGORIES;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-6 overflow-hidden">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Skill' : 'Create New Skill'}</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
           <DialogDescription>
             {isEdit ? 'Update the details of this skill' : 'Add a new skill to your portfolio'}
           </DialogDescription>
@@ -366,7 +170,7 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto space-y-4 px-1 pb-1">
+            <div className="flex-1 overflow-y-auto space-y-4 px-1 pb-1 scrollbar-thin">
               {/* ── Row 1: Name + Category ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -377,14 +181,14 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
                     <FormItem>
                       <FormLabel>Skill Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="React.js" {...field} />
+                        <Input placeholder="e.g. React" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Category — fixed dropdown from DB */}
+                {/* Category dropdown */}
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -399,17 +203,11 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent position="popper" className="bg-popover!">
-                          {!categories || categories.length === 0 ? (
-                            <div className="p-2 text-sm text-muted-foreground">
-                              No categories available
-                            </div>
-                          ) : (
-                            categories.map((cat) => (
-                              <SelectItem key={cat.id} value={cat.id}>
-                                {cat.label}
-                              </SelectItem>
-                            ))
-                          )}
+                          {availableCategories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </SelectElement>
                       <FormMessage />
@@ -455,8 +253,8 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
                       <FormControl>
                         <Input
                           type="number"
-                          min="0"
-                          max="50"
+                          min={0}
+                          max={50}
                           placeholder="e.g. 3"
                           {...field}
                           value={field.value ?? ''}
@@ -470,31 +268,49 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
                 />
               </div>
 
+              {/* ── Row 3: Icon Picker + Description ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* ── Icon Picker ── */}
                 <FormField
                   control={form.control}
                   name="icon"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Icon</FormLabel>
-                      <FormControl className="bg-background border rounded-md p-2">
-                        <IconPicker value={field.value ?? ''} onChange={field.onChange} />
+                      <FormControl>
+                        <TechIconPicker
+                          value={field.value ?? ''}
+                          onChange={(icon, skillName, category) => {
+                            field.onChange(icon);
+                            // Auto-fill skill name if currently empty
+                            if (skillName && !form.getValues('name')) {
+                              form.setValue('name', skillName, { shouldValidate: true });
+                            }
+                            // Auto-select matching category if currently empty
+                            if (category && !form.getValues('categoryId')) {
+                              const matched = availableCategories.find(
+                                (c) => c.id.toLowerCase() === category.toLowerCase() || c.slug.toLowerCase() === category.toLowerCase()
+                              );
+                              if (matched) {
+                                form.setValue('categoryId', matched.id, { shouldValidate: true });
+                              }
+                            }
+                          }}
+                          categories={availableCategories}
+                        />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        Pick a Lucide icon from the palette above.
+                        Select an authentic tech logo or custom icon.
                       </p>
                     </FormItem>
                   )}
                 />
 
-                {/* ── Description ── */}
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
                         <Textarea
                           rows={3}
@@ -506,12 +322,13 @@ const SkillFormDialog = ({ open, onClose, onSuccess, skill, categories }: ISkill
                   )}
                 />
               </div>
-              {/* ── Publish toggle ── */}
+
+              {/* ── Row 4: Publish toggle ── */}
               <FormField
                 control={form.control}
                 name="isPublished"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 rounded-md border px-3 py-3">
+                  <FormItem className="flex items-center gap-3 rounded-md border p-3">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
