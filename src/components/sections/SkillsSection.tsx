@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { getIcon } from '../../lib/iconMapper';
 import FadeUp from '../ui/FadeUp';
 import { EmptyState, SkillsSkeleton } from '../shared/PublicDataSkeletons';
-import SkillIcon from '../shared/SkillIcon';
+import OrbitalSkillCard from './OrbitalSkillCard';
 
 interface Skill {
   _id: string;
@@ -18,6 +18,7 @@ interface Skill {
 }
 
 interface SkillGroupData {
+  key: string;
   label: string;
   icon: any;
   order: number;
@@ -35,14 +36,14 @@ const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
   languages: { key: 'languages', label: 'Languages', iconName: 'Code2', order: 1 },
   frontend: { key: 'frontend', label: 'Frontend', iconName: 'Globe', order: 2 },
   backend: { key: 'backend', label: 'Backend', iconName: 'Server', order: 3 },
-  'styling-ui': { key: 'styling-ui', label: 'Styling UI', iconName: 'Palette', order: 4 },
-  'styling ui': { key: 'styling-ui', label: 'Styling UI', iconName: 'Palette', order: 4 },
-  'styling & ui': { key: 'styling-ui', label: 'Styling UI', iconName: 'Palette', order: 4 },
-  styling: { key: 'styling-ui', label: 'Styling UI', iconName: 'Palette', order: 4 },
+  'styling-ui': { key: 'styling-ui', label: 'Styling & UI', iconName: 'Palette', order: 4 },
+  'styling ui': { key: 'styling-ui', label: 'Styling & UI', iconName: 'Palette', order: 4 },
+  'styling & ui': { key: 'styling-ui', label: 'Styling & UI', iconName: 'Palette', order: 4 },
+  styling: { key: 'styling-ui', label: 'Styling & UI', iconName: 'Palette', order: 4 },
   database: { key: 'database', label: 'Database', iconName: 'Database', order: 5 },
-  'tools-devops': { key: 'tools-devops', label: 'Tools', iconName: 'Wrench', order: 6 },
-  'tools & devops': { key: 'tools-devops', label: 'Tools', iconName: 'Wrench', order: 6 },
-  tools: { key: 'tools-devops', label: 'Tools', iconName: 'Wrench', order: 6 },
+  'tools-devops': { key: 'tools-devops', label: 'Tools & DevOps', iconName: 'Wrench', order: 6 },
+  'tools & devops': { key: 'tools-devops', label: 'Tools & DevOps', iconName: 'Wrench', order: 6 },
+  tools: { key: 'tools-devops', label: 'Tools & DevOps', iconName: 'Wrench', order: 6 },
 };
 
 function normalizeCategory(rawCat: string): {
@@ -88,7 +89,7 @@ export default function SkillsSection() {
           // Group skills by normalized category
           const grouped: Record<
             string,
-            { label: string; iconName: string; order: number; skills: Skill[] }
+            { key: string; label: string; iconName: string; order: number; skills: Skill[] }
           > = {};
 
           data.skills.forEach((skill: Skill) => {
@@ -96,6 +97,7 @@ export default function SkillsSection() {
             const groupKey = catInfo.key;
             if (!grouped[groupKey]) {
               grouped[groupKey] = {
+                key: groupKey,
                 label: catInfo.label,
                 iconName: catInfo.iconName,
                 order: catInfo.order,
@@ -109,6 +111,7 @@ export default function SkillsSection() {
           const sortedGroups: SkillGroupData[] = Object.values(grouped)
             .sort((a, b) => a.order - b.order)
             .map((group) => ({
+              key: group.key,
               label: group.label,
               icon: getIcon(group.iconName),
               order: group.order,
@@ -151,37 +154,15 @@ export default function SkillsSection() {
               description="The skill matrix will appear here after published skills are added."
             />
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {skillGroups.map(({ label, icon: GroupIcon, skills }) => (
-                <div
-                  key={label}
-                  className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-                >
-                  {/* Group Header */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <GroupIcon size={20} className="text-primary" />
-                    </div>
-                    <h4 className="text-lg font-semibold text-foreground">{label}</h4>
-                  </div>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-3">
-                    {skills.map(({ _id, name, icon }) => (
-                      <div
-                        key={_id}
-                        className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-muted text-muted-foreground hover:bg-primary hover:text-white transition group cursor-default"
-                      >
-                        <SkillIcon
-                          icon={icon}
-                          size={18}
-                          className="text-primary group-hover:text-white transition"
-                        />
-                        <span className="text-sm font-medium">{name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {skillGroups.map((group) => (
+                <OrbitalSkillCard
+                  key={group.key}
+                  label={group.label}
+                  icon={group.icon}
+                  skills={group.skills}
+                  categoryKey={group.key}
+                />
               ))}
             </div>
           )}

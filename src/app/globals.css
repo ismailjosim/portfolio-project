@@ -4,7 +4,6 @@
 @import 'shadcn/tailwind.css';
 @import 'devicon/devicon.min.css';
 
-
 @custom-variant dark (&:is(.dark *));
 
 html {
@@ -442,6 +441,40 @@ h3,
 h4,
 h5 {
   font-family: 'Rajdhani', sans-serif;
+}
+
+/* ===========================================
+*              Orbital Ring Animations
+* =========================================== */
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes counter-orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-orbit {
+  animation: orbit-spin 38s linear infinite;
+}
+
+.animate-counter-orbit {
+  animation: counter-orbit-spin 38s linear infinite;
+}
+
+.hover-pause:hover .animate-orbit,
+.hover-pause:hover .animate-counter-orbit {
+  animation-play-state: paused;
 }
 
 /*
@@ -1047,5 +1080,3 @@ h5 {
 .prose a:hover {
   opacity: 0.8 !important;
 }
-
-
