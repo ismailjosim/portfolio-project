@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { listCommentsForAdmin } from '../../../services/comment-admin';
 import { TableSkeleton } from '../../../components/shared/TableSkeleton';
@@ -5,6 +6,11 @@ import TablePagination from '../../../components/shared/TablePagination';
 import ManagementPageHeader from '../../../components/shared/ManagementPageHeader';
 import CommentsFilter from '../../../components/modules/commentsManagement/CommentsFilter';
 import CommentsTable from '../../../components/modules/commentsManagement/CommentsTable';
+
+export const metadata: Metadata = {
+  title: 'Comments Management',
+  description: 'Moderate blog reader comments, reviews, feedback, and discussion threads.',
+};
 
 const asString = (value: string | string[] | undefined) =>
   typeof value === 'string' ? value : undefined;

@@ -473,7 +473,9 @@ h5 {
 }
 
 .hover-pause:hover .animate-orbit,
-.hover-pause:hover .animate-counter-orbit {
+.hover-pause:hover .animate-counter-orbit,
+.hover-pause.is-paused .animate-orbit,
+.hover-pause.is-paused .animate-counter-orbit {
   animation-play-state: paused;
 }
 

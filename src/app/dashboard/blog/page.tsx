@@ -1,10 +1,16 @@
-import { getAllBlogs } from '../../../services/blog-management';
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { getAllBlogs } from '../../../services/blog-management';
 import { TableSkeleton } from '../../../components/shared/TableSkeleton';
 import TablePagination from '../../../components/shared/TablePagination';
 import BlogsFilter from '../../../components/modules/blogsManagement/BlogsFilter';
 import BlogsTable from '../../../components/modules/blogsManagement/BlogsTable';
 import BlogManagementHeader from '@/src/components/modules/blogsManagement/BlogManagementHeader';
+
+export const metadata: Metadata = {
+  title: 'Blog Management',
+  description: 'Manage, publish, schedule, and organize portfolio blog articles.',
+};
 
 const DashboardBlogPage = async ({
   searchParams,

@@ -44,7 +44,7 @@ const BlogCard = ({ blog, index }: BlogCardPros) => {
   return (
     <FadeUp key={blog.slug} delay={index * 80}>
       <article
-        className="h-full rounded-2xl overflow-hidden transition-all flex flex-col hover:shadow-lg"
+        className="h-full rounded-2xl overflow-hidden transition-all duration-300 flex flex-col hover:shadow-lg active:scale-[0.98] active:shadow-md"
         style={{
           border: '1px solid var(--border)',
           background: 'var(--blog-card)',
@@ -74,8 +74,8 @@ const BlogCard = ({ blog, index }: BlogCardPros) => {
             </span>
             <span className="text-muted-foreground text-xs">{getReadTime(blog.content)}</span>
           </div>
-          <Link href={`/blogs/${blog.slug}`}>
-            <h3 className="font-bold text-foreground text-lg mb-2 hover:text-accent transition-colors line-clamp-2">
+          <Link href={`/blogs/${blog.slug}`} className="group/title">
+            <h3 className="font-bold text-foreground text-lg mb-2 group-hover/title:text-accent active:text-accent transition-colors line-clamp-2">
               {blog.title}
             </h3>
           </Link>
@@ -100,12 +100,13 @@ const BlogCard = ({ blog, index }: BlogCardPros) => {
             </span>
           </div>
 
-          <a
+          <Link
             href={`/blogs/${blog.slug}`}
-            className="text-accent text-sm font-medium hover:underline"
+            className="text-accent text-sm font-medium hover:underline active:opacity-80 inline-flex items-center gap-1 self-start"
           >
-            Read More →
-          </a>
+            <span>Read More</span>
+            <span>→</span>
+          </Link>
         </div>
       </article>
     </FadeUp>

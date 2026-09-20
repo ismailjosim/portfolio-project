@@ -5,94 +5,25 @@ import Link from 'next/link';
 import {
   Activity,
   ArrowRight,
-  BadgeCheck,
-  Code2,
-  Database,
-  Flame,
   Github,
-  KeyRound,
   Layers3,
-  Server,
   Terminal,
-  Globe,
   Compass,
-  type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button } from '../ui/button';
+import {
+  type ProjectCardProject,
+  getTechIcon,
+  getProjectLinks,
+} from './projectCardUtils';
 
-export interface ProjectCardProject {
-  _id: string;
-  name: string;
-  subtitle?: string;
-  title?: string;
-  type?: string;
-  image?: string;
-  demoImages?: string[];
-  description?: string;
-  technologies: string[];
-  features: string[];
-  githubUrl?: string;
-  liveUrl?: string;
-  serverGithubUrl?: string;
-  caseStudyUrl?: string;
-  featured?: boolean;
-  slug?: string;
-}
+export type { ProjectCardProject };
 
 interface ProjectShowcaseCardProps {
   project: ProjectCardProject;
   reverse?: boolean;
   priority?: boolean;
-}
-
-const TECH_ICON_MAP: Record<string, LucideIcon> = {
-  react: Code2,
-  'react.js': Code2,
-  next: Code2,
-  'next.js': Code2,
-  node: Server,
-  'node.js': Server,
-  express: Terminal,
-  'express.js': Terminal,
-  mongodb: Database,
-  mongo: Database,
-  firebase: Flame,
-  stripe: BadgeCheck,
-  jwt: KeyRound,
-  tailwind: Code2,
-  'tailwind css': Code2,
-  daisyui: Layers3,
-  'react router': Compass,
-  axios: Globe,
-};
-
-function getTechIcon(tech: string) {
-  const normalized = tech.trim().toLowerCase();
-  return TECH_ICON_MAP[normalized] ?? Code2;
-}
-
-function getProjectLinks(project: ProjectCardProject) {
-  const repoUrls = [project.githubUrl, project.serverGithubUrl, project.caseStudyUrl].filter(
-    (url): url is string => Boolean(url && url.includes('github.com'))
-  );
-
-  const liveSiteUrl = project.liveUrl;
-
-  const clientRepoUrl =
-    repoUrls.find((url) => url.toLowerCase().includes('client')) ||
-    repoUrls.find((url) => !url.toLowerCase().includes('server'));
-
-  const serverRepoUrl =
-    [
-      project.serverGithubUrl,
-      project.caseStudyUrl,
-      repoUrls.find((url) => url.toLowerCase().includes('server')),
-    ].find((url) => url && url.includes('github.com') && url !== clientRepoUrl) || undefined;
-
-  const repoCount = new Set([clientRepoUrl, serverRepoUrl].filter(Boolean)).size;
-
-  return { liveSiteUrl, clientRepoUrl, serverRepoUrl, hasMultipleRepos: repoCount > 1 };
 }
 
 export default function ProjectShowcaseCard({
@@ -118,7 +49,7 @@ export default function ProjectShowcaseCard({
   return (
     <article
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/10 dark:border-slate-800/60 dark:bg-[#0B1329] dark:text-slate-100 dark:hover:border-primary/30 dark:hover:shadow-primary/5',
+        'group relative overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/10 active:scale-[0.99] active:shadow-md dark:border-slate-800/60 dark:bg-[#0B1329] dark:text-slate-100 dark:hover:border-primary/30 dark:hover:shadow-primary/5',
         reverse && 'lg:[&>div>.project-visual]:order-2'
       )}
     >
@@ -189,7 +120,7 @@ export default function ProjectShowcaseCard({
                   {liveSiteUrl && (
                     <Button
                       asChild
-                      className="group/btn h-9 min-w-30 flex-1 rounded-lg border border-primary/40 bg-primary/10 px-3 font-mono text-[11px] uppercase tracking-wider text-primary transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-primary/20 hover:shadow-lg"
+                      className="group/btn h-9 min-w-30 flex-1 rounded-lg border border-primary/40 bg-primary/10 px-3 font-mono text-[11px] uppercase tracking-wider text-primary transition-all duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-primary/20 hover:shadow-lg active:scale-95 cursor-pointer"
                     >
                       <a
                         href={liveSiteUrl}
@@ -206,7 +137,7 @@ export default function ProjectShowcaseCard({
                     <Button
                       asChild
                       variant="outline"
-                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
+                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent active:scale-95 cursor-pointer dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
                     >
                       <a
                         href={clientRepoUrl}
@@ -225,7 +156,7 @@ export default function ProjectShowcaseCard({
                     <Button
                       asChild
                       variant="outline"
-                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
+                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent active:scale-95 cursor-pointer dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
                     >
                       <a
                         href={serverRepoUrl}
@@ -244,7 +175,7 @@ export default function ProjectShowcaseCard({
                     <Button
                       asChild
                       variant="outline"
-                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
+                      className="h-9 min-w-24 flex-1 rounded-md border-border bg-background/70 px-2.5 text-xs font-semibold text-foreground hover:border-accent/50 hover:bg-accent/10 hover:text-accent active:scale-95 cursor-pointer dark:border-slate-700/80 dark:bg-slate-950/70 dark:text-slate-200 dark:hover:border-primary/50 dark:hover:bg-slate-900 dark:hover:text-primary"
                     >
                       <Link
                         href={`/projects/${project.slug}`}

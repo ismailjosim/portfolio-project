@@ -61,7 +61,7 @@ export default function TestimonialsSection() {
 
         {/* Featured Award Bento Card */}
         <FadeUp delay={100}>
-          <div className="relative overflow-hidden p-6 md:p-8 rounded-3xl bg-linear-to-br from-card via-card to-primary/10 border border-primary/30 shadow-lg mb-8">
+          <div className="relative overflow-hidden p-6 md:p-8 rounded-3xl bg-linear-to-br from-card via-card to-primary/10 border border-primary/30 shadow-lg mb-8 transition-all duration-300 active:scale-[0.99] active:shadow-md">
             <div className="absolute top-0 right-0 w-80 h-80 bg-primary/15 rounded-full blur-3xl -z-10 pointer-events-none" />
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
@@ -129,11 +129,11 @@ export default function TestimonialsSection() {
               return (
                 <div
                   key={stat.label}
-                  className="p-6 rounded-2xl bg-card border border-border/80 flex flex-col justify-between shadow-xs hover:border-primary/40 hover:shadow-md transition-all group"
+                  className="p-6 rounded-2xl bg-card border border-border/80 flex flex-col justify-between shadow-xs hover:border-primary/40 hover:shadow-md active:scale-[0.98] active:border-primary/40 transition-all duration-300 group cursor-default"
                 >
                   <div>
                     <div
-                      className={`w-11 h-11 rounded-xl ${stat.iconBg} flex items-center justify-center mb-4 transition-transform group-hover:scale-105`}
+                      className={`w-11 h-11 rounded-xl ${stat.iconBg} flex items-center justify-center mb-4 transition-transform group-hover:scale-105 group-active:scale-105`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>

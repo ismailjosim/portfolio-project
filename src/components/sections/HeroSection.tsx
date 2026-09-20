@@ -139,7 +139,7 @@ export default function HeroSection() {
             <div className="flex flex-wrap gap-4 mb-6">
               <a
                 href="mailto:ismailjosim@yahoo.com"
-                className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 shadow-md shadow-primary/20"
+                className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 active:scale-95 shadow-md shadow-primary/20 cursor-pointer"
               >
                 <Mail size={16} />
                 Hire Me
@@ -147,7 +147,7 @@ export default function HeroSection() {
 
               <button
                 onClick={() => setIsResumeOpen(true)}
-                className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 cursor-pointer hover:border-primary/40"
+                className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-6 py-3 rounded-2xl font-semibold transition-transform hover:scale-105 active:scale-95 cursor-pointer hover:border-primary/40"
               >
                 <FileText size={16} className="text-primary" />
                 View Resume
@@ -155,7 +155,7 @@ export default function HeroSection() {
 
               <button
                 onClick={() => scrollToSection('projects')}
-                className="flex items-center gap-2 border border-primary text-primary px-6 py-3 rounded-2xl font-semibold transition-colors hover:bg-primary hover:text-white cursor-pointer"
+                className="flex items-center gap-2 border border-primary text-primary px-6 py-3 rounded-2xl font-semibold transition-all hover:bg-primary hover:text-white active:scale-95 cursor-pointer"
               >
                 <Layers size={16} />
                 View Projects
@@ -187,7 +187,7 @@ export default function HeroSection() {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="flex justify-center lg:justify-end w-full">
+          <div className="flex flex-col items-center lg:items-end justify-center w-full">
             <div className="relative">
               {/* Profile Image */}
               <div
@@ -200,7 +200,7 @@ export default function HeroSection() {
               {/* Glow */}
               <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10" />
 
-              {/* Floating Badges */}
+              {/* Floating Badges for Tablet & Desktop */}
               <div className="sm:block hidden">
                 {BADGES.map((badge, i) => {
                   const Icon = badge.icon;
@@ -227,6 +227,34 @@ export default function HeroSection() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Mobile Swipeable Achievement Badges */}
+            <div className="sm:hidden flex overflow-x-auto gap-2.5 py-4 mt-6 w-full max-w-sm scrollbar-none snap-x px-1">
+              {BADGES.map((badge, i) => {
+                const Icon = badge.icon;
+
+                return (
+                  <div
+                    key={i}
+                    className="shrink-0 snap-start bg-card/90 backdrop-blur-md border border-border/80 shadow-md rounded-2xl p-3 flex items-center gap-2.5 active:scale-95 transition-transform"
+                  >
+                    <div
+                      className={`w-8 h-8 ${badge.iconBg} rounded-xl flex items-center justify-center shrink-0`}
+                    >
+                      <Icon size={16} className={badge.iconColor} />
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-foreground whitespace-nowrap">
+                        {badge.title}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        {badge.subtitle}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

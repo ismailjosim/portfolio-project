@@ -67,19 +67,21 @@ export default function WorkingAreasSection() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {areas.map((area, i) => (
             <FadeUp key={area.title} delay={i * 80}>
-              <Card className="group flex flex-col p-8 h-full cursor-pointer border border-border hover:border-accent hover:shadow-xl transition-all duration-300">
+              <Card className="group flex flex-col p-8 h-full cursor-pointer border border-border hover:border-accent hover:shadow-xl active:scale-[0.98] active:border-accent active:shadow-md transition-all duration-300">
                 {/* Icon */}
                 <div
-                  className={`w-14 h-14 mb-5 flex items-center justify-center rounded-2xl ${area.iconBg} transition-colors duration-300 group-hover:bg-accent`}
+                  className={`w-14 h-14 mb-5 flex items-center justify-center rounded-2xl ${area.iconBg} transition-colors duration-300 group-hover:bg-accent group-active:bg-accent`}
                 >
                   <area.Icon
                     size={22}
-                    className={`transition-colors duration-300 ${area.iconColor} group-hover:text-white`}
+                    className={`transition-colors duration-300 ${area.iconColor} group-hover:text-white group-active:text-white`}
                   />
                 </div>
 
                 {/* Title & Description */}
-                <h3 className="text-lg font-bold mb-2 text-foreground">{area.title}</h3>
+                <h3 className="text-lg font-bold mb-2 text-foreground transition-colors group-hover:text-accent group-active:text-accent">
+                  {area.title}
+                </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{area.desc}</p>
               </Card>
             </FadeUp>

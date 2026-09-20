@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { TableSkeleton } from '../../../components/shared/TableSkeleton';
 import TablePagination from '../../../components/shared/TablePagination';
@@ -5,6 +6,11 @@ import SkillManagementHeader from '@/src/components/modules/skillsManagement/Ski
 import SkillsTable from '@/src/components/modules/skillsManagement/SkillsTable';
 import SkillFilter from '@/src/components/modules/skillsManagement/SkillFilter';
 import { getAllSkills } from '@/src/services/skill-management';
+
+export const metadata: Metadata = {
+  title: 'Skills Management',
+  description: 'Manage technical competencies, categories, proficiency rankings, and icon mappings.',
+};
 
 const SkillsPage = async ({
   searchParams,

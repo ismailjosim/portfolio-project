@@ -3,9 +3,9 @@ import { Button } from '../ui/button';
 
 const ContactItem = ({ icon: Icon, label, value, href }: IContactInfoItem) => {
   return (
-    <div className="flex gap-4 items-start">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border bg-muted">
-        <Icon className="h-5 w-5 text-accent" />
+    <div className="flex gap-4 items-start group">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border bg-muted transition-all duration-200 group-hover:border-accent group-hover:bg-accent/10 group-active:scale-95">
+        <Icon className="h-5 w-5 text-accent transition-transform group-hover:scale-110" />
       </div>
 
       <div className="space-y-1">
@@ -17,7 +17,7 @@ const ContactItem = ({ icon: Icon, label, value, href }: IContactInfoItem) => {
           <Button
             asChild
             variant="link"
-            className="h-auto p-0 text-base font-medium text-foreground hover:text-accent"
+            className="h-auto p-0 text-base font-medium text-foreground hover:text-accent active:opacity-75 transition-colors"
           >
             <a
               href={href}

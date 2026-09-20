@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import SkillIcon from '../shared/SkillIcon';
 import type { SkillItem } from '../../types/skill.interface';
@@ -72,6 +72,13 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
   skills,
   categoryKey,
 }) => {
+  const [activeSkill, setActiveSkill] = useState<SkillItem | null>(null);
+  const [hoveredSkill, setHoveredSkill] = useState<SkillItem | null>(null);
+  const [isTouching, setIsTouching] = useState(false);
+
+  const currentSkill = activeSkill || hoveredSkill;
+  const isPaused = !!currentSkill || isTouching;
+
   // Sort skills strictly by proficiency rank: Expert 1st -> Advanced -> Intermediate -> Beginner
   const rankedSkills = useMemo(() => {
     return [...skills].sort((a, b) => {
@@ -96,7 +103,14 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
 
   return (
     <div
-      className={`group bg-card dark:bg-slate-950/80 backdrop-blur-md border border-border/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-2xl transition-all duration-500 ${theme.borderHover} relative overflow-hidden flex items-center justify-center hover-pause`}
+      onClick={() => {
+        if (activeSkill) setActiveSkill(null);
+      }}
+      onTouchStart={() => setIsTouching(true)}
+      onTouchEnd={() => setIsTouching(false)}
+      className={`group bg-card dark:bg-slate-950/80 backdrop-blur-md border border-border/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-2xl transition-all duration-500 ${theme.borderHover} relative overflow-hidden flex items-center justify-center hover-pause ${
+        isPaused ? 'is-paused' : ''
+      }`}
     >
       {/* Background Radial Ambiance Glow (Subtle in light mode, luminous in dark mode) */}
       <div
@@ -123,26 +137,52 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
           style={{ width: `${trackDiameter + 10}px`, height: `${trackDiameter + 10}px` }}
         />
 
-        {/* ── Central Category Hub (Prominent, Multi-line wrapping, No overflow) ── */}
+        {/* ── Central Category Hub (Prominent, Dynamic Skill View on Tap/Hover) ── */}
         <div
-          className={`relative z-20 flex flex-col items-center justify-center w-22 h-22 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:${theme.centerBorder} shadow-md dark:${theme.centerGlow} p-2 text-center transition-transform duration-300 group-hover:scale-105`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (activeSkill) setActiveSkill(null);
+          }}
+          className={`relative z-20 flex flex-col items-center justify-center w-22 h-22 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:${theme.centerBorder} shadow-md dark:${theme.centerGlow} p-2 text-center transition-all duration-300 ${
+            activeSkill ? 'cursor-pointer ring-2 ring-primary/40 scale-105' : 'group-hover:scale-105'
+          }`}
         >
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-1 shrink-0 shadow-xs">
-            <GroupIcon size={18} />
-          </div>
-          <span className="text-[11px] sm:text-xs font-bold text-foreground tracking-tight leading-tight px-1 max-w-full text-center line-clamp-2">
-            {label}
-          </span>
-          <span className="text-[9px] text-muted-foreground font-medium mt-0.5">
-            {skills.length} skills
-          </span>
+          {currentSkill ? (
+            <>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-1 shrink-0 shadow-xs transition-transform duration-200">
+                <SkillIcon icon={currentSkill.icon} size={22} className="shrink-0" />
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-foreground tracking-tight leading-tight px-1 max-w-full text-center line-clamp-1">
+                {currentSkill.name}
+              </span>
+              <span className="text-[9px] text-primary font-semibold capitalize mt-0.5 px-1.5 py-0.2 rounded-full bg-primary/10 border border-primary/20 line-clamp-1">
+                {currentSkill.proficiency || 'Technology'}
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-1 shrink-0 shadow-xs">
+                <GroupIcon size={18} />
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-foreground tracking-tight leading-tight px-1 max-w-full text-center line-clamp-2">
+                {label}
+              </span>
+              <span className="text-[9px] text-muted-foreground font-medium mt-0.5">
+                {skills.length} skills
+              </span>
+            </>
+          )}
         </div>
 
         {/* ── Orbiting Tech Stack Skills Ring (z-30 so tooltips float above center hub) ── */}
         {orbitCount > 0 && (
           <div
             className="absolute inset-0 m-auto animate-orbit pointer-events-none z-30"
-            style={{ width: `${trackDiameter}px`, height: `${trackDiameter}px` }}
+            style={{
+              width: `${trackDiameter}px`,
+              height: `${trackDiameter}px`,
+              animationPlayState: isPaused ? 'paused' : undefined,
+            }}
           >
             {rankedSkills.map((skill, index) => {
               // 1st position (Expert) starts at top (-90 degrees / 12 o'clock)
@@ -153,6 +193,7 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
 
               // If icon is in bottom half of the orbit, display tooltip BELOW the icon to prevent overlapping center hub
               const isBottomHalf = y > 15;
+              const isSelected = activeSkill?._id === skill._id;
 
               return (
                 <div
@@ -164,19 +205,40 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
                   }}
                 >
                   {/* Counter-rotate icon container so icons remain upright */}
-                  <div className="animate-counter-orbit">
-                    <div className="group/sat relative flex items-center justify-center w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-2xl bg-white dark:bg-slate-800/85 border border-slate-200/90 dark:border-white/20 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/20 hover:scale-125 hover:shadow-xl dark:hover:drop-shadow-[0_0_20px_rgba(1,180,186,0.85)] cursor-pointer shadow-md dark:shadow-sm">
+                  <div
+                    className="animate-counter-orbit"
+                    style={{ animationPlayState: isPaused ? 'paused' : undefined }}
+                  >
+                    <button
+                      type="button"
+                      aria-label={skill.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveSkill((prev) => (prev?._id === skill._id ? null : skill));
+                      }}
+                      onMouseEnter={() => setHoveredSkill(skill)}
+                      onMouseLeave={() => setHoveredSkill(null)}
+                      className={`group/sat relative flex items-center justify-center w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-2xl bg-white dark:bg-slate-800/85 border transition-all duration-300 cursor-pointer shadow-md dark:shadow-sm active:scale-95 ${
+                        isSelected
+                          ? 'border-primary bg-primary/15 dark:bg-primary/25 scale-125 shadow-xl ring-2 ring-primary/40 z-40'
+                          : 'border-slate-200/90 dark:border-white/20 hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/20 hover:scale-125 hover:shadow-xl dark:hover:drop-shadow-[0_0_20px_rgba(1,180,186,0.85)]'
+                      }`}
+                    >
                       {/* Floating Tooltip pointing outward (below for bottom icons, above for top icons) */}
                       <div
-                        className={`absolute left-1/2 -translate-x-1/2 opacity-0 group-hover/sat:opacity-100 transition-all duration-200 pointer-events-none z-50 px-2.5 py-1 rounded-md bg-slate-950 dark:bg-slate-900 text-white text-xs font-semibold tracking-wide whitespace-nowrap shadow-2xl border border-white/20 ${
+                        className={`absolute left-1/2 -translate-x-1/2 transition-all duration-200 pointer-events-none z-50 px-2.5 py-1 rounded-md bg-slate-950 dark:bg-slate-900 text-white text-xs font-semibold tracking-wide whitespace-nowrap shadow-2xl border border-white/20 ${
                           isBottomHalf ? 'top-full mt-2.5' : '-top-9'
+                        } ${
+                          isSelected
+                            ? 'opacity-100 scale-100'
+                            : 'opacity-0 group-hover/sat:opacity-100'
                         }`}
                       >
                         {skill.name}
                       </div>
 
                       <SkillIcon icon={skill.icon} size={26} className="shrink-0" />
-                    </div>
+                    </button>
                   </div>
                 </div>
               );

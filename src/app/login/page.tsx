@@ -1,9 +1,18 @@
+import type { Metadata } from 'next';
 import LoginForm from '../../components/shared/LoginForm';
+
+export const metadata: Metadata = {
+  title: 'Dashboard Access — Authentication Portal',
+  description: 'Secure authentication portal for portfolio administration.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const LoginPage = async ({ searchParams }: { searchParams: Promise<{ from?: string }> }) => {
   const resolvedParams = await searchParams;
   const from = resolvedParams?.from || '/dashboard';
-  console.log({ from });
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -41,4 +50,5 @@ const LoginPage = async ({ searchParams }: { searchParams: Promise<{ from?: stri
     </main>
   );
 };
+
 export default LoginPage;

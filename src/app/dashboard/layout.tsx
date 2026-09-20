@@ -1,11 +1,23 @@
+import React from 'react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { AppSidebar } from '@/src/components/app-sidebar';
 import { Separator } from '@/src/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/src/components/ui/sidebar';
 import { DynamicBreadcrumb } from '@/src/components/dashboard/DynamicBreadcrumb';
 import ThemeToggle from '@/src/components/ui/ThemeToggle';
-import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
-import React from 'react';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Dashboard — Admin Portal',
+    template: '%s | Admin Dashboard',
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (

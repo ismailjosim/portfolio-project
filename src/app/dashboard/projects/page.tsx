@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import ProjectFilter from '@/src/components/modules/projectsManagement/ProjectFilter';
 import ProjectManagementHeader from '@/src/components/modules/projectsManagement/ProjectManagementHeader';
 import ProjectsTable from '@/src/components/modules/projectsManagement/ProjectsTable';
@@ -5,7 +7,11 @@ import TablePagination from '@/src/components/shared/TablePagination';
 import { TableSkeleton } from '@/src/components/shared/TableSkeleton';
 import { queryStringFormatter } from '@/src/lib/formatters.ts';
 import { getAllProjects } from '@/src/services/project-management';
-import { Suspense } from 'react';
+
+export const metadata: Metadata = {
+  title: 'Projects Management',
+  description: 'Manage showcase projects, live demos, repositories, and case studies.',
+};
 
 const ProjectsPage = async ({
   searchParams,

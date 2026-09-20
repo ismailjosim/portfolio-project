@@ -24,7 +24,7 @@ function SocialButton({ href, label, icon: Icon, hoverColorClass }: SocialButton
     <Button
       asChild
       size="icon"
-      className={`h-9 w-9 rounded-lg border border-border text-muted-foreground bg-transparent transition-all duration-200 hover:text-white ${hoverColorClass || 'hover:bg-accent hover:border-accent'}`}
+      className={`h-9 w-9 rounded-lg border border-border text-muted-foreground bg-transparent transition-all duration-200 hover:text-white active:scale-90 cursor-pointer ${hoverColorClass || 'hover:bg-accent hover:border-accent'}`}
     >
       <a
         href={href}

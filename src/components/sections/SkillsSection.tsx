@@ -70,7 +70,7 @@ function normalizeCategory(rawCat: string): {
 export default function SkillsSection() {
   const [skillGroups, setSkillGroups] = useState<SkillGroupData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [layoutMode, setLayoutMode] = useState<'bento' | 'orbitals'>('bento');
+  const [layoutMode, setLayoutMode] = useState<'bento' | 'orbitals'>('orbitals');
 
   useEffect(() => {
     async function fetchSkills() {
@@ -182,8 +182,27 @@ export default function SkillsSection() {
             /* ── MODERN ASYMMETRIC BENTO GRID ── */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {skillGroups.map((group, index) => {
-                // First category (Languages / Core Stack) is the 2-column featured Orbital Hero
+                // First category (Languages / Core Stack) is the top 2-column featured Orbital Hero
                 if (index === 0) {
+                  return (
+                    <div key={group.key} className="md:col-span-2 lg:col-span-2">
+                      <OrbitalSkillCard
+                        label={group.label}
+                        icon={group.icon}
+                        skills={group.skills}
+                        categoryKey={group.key}
+                      />
+                    </div>
+                  );
+                }
+
+                // Tools & DevOps category also spans 2 columns as an Orbital Card to balance the Bento Grid
+                const isToolsDevOps =
+                  group.key === 'tools-devops' ||
+                  group.key === 'tools & devops' ||
+                  group.key === 'tools';
+
+                if (isToolsDevOps) {
                   return (
                     <div key={group.key} className="md:col-span-2 lg:col-span-2">
                       <OrbitalSkillCard
