@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { connectDB } from '../../../lib/mongodb';
 import NewsletterSubscriber from '../../../models/NewsletterSubscriber';
+import BlockedEmail from '../../../models/BlockedEmail';
 import { validateSubscriberEmail, emailValidationMessage } from '../../../lib/validate-email';
+import { resend } from '../../../lib/resend';
 
 // POST /api/newsletter — subscribe
 export async function POST(req: Request) {
@@ -17,6 +19,18 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { success: false, message: 'Please provide a valid email address.' },
         { status: 400 }
+      );
+    }
+
+    // ── Layer 1: Check if the email is blocked ──────
+    const isBlocked = await BlockedEmail.findOne({ email });
+    if (isBlocked) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'This email address is not allowed to subscribe to our newsletter.',
+        },
+        { status: 403 }
       );
     }
 
@@ -51,6 +65,25 @@ export async function POST(req: Request) {
       if (name) existing.name = name;
       await existing.save();
 
+      // Send welcome email for re-subscription
+      const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://yourdomain.com'}/api/newsletter?token=${existing.unsubscribeToken}`;
+
+      await resend.emails.send({
+        from: 'Newsletter <newsletter@yourdomain.com>',
+        to: email,
+        subject: '🎉 Welcome Back! You are Re-subscribed',
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+            <h2>Welcome back ${name ? name : ''}! 🎉</h2>
+            <p>Thank you for re-subscribing to my newsletter. You will start receiving updates again soon.</p>
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
+            <p style="font-size: 12px; color: #888;">
+              If you didn't mean to resubscribe, you can <a href="${unsubscribeUrl}">unsubscribe here</a>.
+            </p>
+          </div>
+        `,
+      });
+
       return NextResponse.json({
         success: true,
         message: 'Welcome back! You have been re-subscribed to our newsletter.',
@@ -59,16 +92,35 @@ export async function POST(req: Request) {
 
     const unsubscribeToken = crypto.randomBytes(32).toString('hex');
 
-    await NewsletterSubscriber.create({
+    const subscriber = await NewsletterSubscriber.create({
       email,
       name: name || undefined,
       unsubscribeToken,
     });
 
+    // Send welcome confirmation email via Resend
+    const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://yourdomain.com'}/api/newsletter?token=${subscriber.unsubscribeToken}`;
+
+    await resend.emails.send({
+      from: 'Newsletter <newsletter@yourdomain.com>',
+      to: email,
+      subject: '🎉 Welcome to the Newsletter!',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+          <h2>Welcome ${name ? name : ''}! 🎉</h2>
+          <p>Thank you for subscribing to my newsletter. You will receive weekly tech insights, articles, and updates directly in your inbox.</p>
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #eee;" />
+          <p style="font-size: 12px; color: #888;">
+            If you didn't mean to subscribe, you can <a href="${unsubscribeUrl}">unsubscribe here</a>.
+          </p>
+        </div>
+      `,
+    });
+
     return NextResponse.json(
       {
         success: true,
-        message: "You're subscribed! 🎉 Expect weekly tech insights in your inbox.",
+        message: "You're subscribed! 🎉 Confirmation email sent to your inbox.",
       },
       { status: 201 }
     );
