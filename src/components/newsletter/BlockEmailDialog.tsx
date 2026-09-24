@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Shield } from 'lucide-react';
 import {
@@ -29,17 +29,18 @@ export function BlockEmailDialog({
   initialEmail = '',
   onSuccess,
 }: BlockEmailDialogProps) {
-  const [email, setEmail] = useState(initialEmail);
   const [reason, setReason] = useState('Manually blocked');
   const [loading, setLoading] = useState(false);
 
-  // Sync state when opened with initial values
-  useEffect(() => {
-    if (open) {
-      setEmail(initialEmail);
+  // Derive email directly from props without state
+  const email = initialEmail;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
       setReason('Manually blocked');
     }
-  }, [open, initialEmail]);
+    onOpenChange(newOpen);
+  };
 
   const handleBlock = async () => {
     if (!email.trim()) return;
@@ -55,7 +56,7 @@ export function BlockEmailDialog({
 
       if (data.success) {
         toast.success(data.message);
-        onOpenChange(false);
+        handleOpenChange(false);
         onSuccess();
       } else {
         toast.error(data.message || 'Failed to block email');
@@ -68,7 +69,7 @@ export function BlockEmailDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Block Email Address</DialogTitle>
@@ -99,7 +100,7 @@ export function BlockEmailDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
           <Button onClick={handleBlock} disabled={loading}>

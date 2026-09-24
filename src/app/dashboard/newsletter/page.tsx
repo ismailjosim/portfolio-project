@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const DashboardNewsletterPage = async () => {
   await connectDB();
 
-  const [totalActive, totalInactive, recentSubscribers, blockedCount] = await Promise.all([
+  const [totalActive, totalInactive, rawSubscribers, blockedCount] = await Promise.all([
     NewsletterSubscriber.countDocuments({ isActive: true }),
     NewsletterSubscriber.countDocuments({ isActive: false }),
     NewsletterSubscriber.find({ isActive: true })
@@ -22,6 +22,11 @@ const DashboardNewsletterPage = async () => {
       .lean(),
     BlockedEmail.countDocuments(),
   ]);
+  // Convert ObjectId to string for _id to match Subscriber type
+  const recentSubscribers = rawSubscribers.map((sub) => ({
+    ...sub,
+    _id: sub._id.toString(),
+  }));
 
   return (
     <NewsletterDashboard
