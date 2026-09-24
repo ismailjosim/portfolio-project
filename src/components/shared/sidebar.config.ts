@@ -4,6 +4,7 @@ import {
   Award,
   LayoutDashboard,
   MessageSquare,
+  Mail,
   Settings,
 } from 'lucide-react';
 
@@ -32,6 +33,11 @@ export const sidebarNav = [
     title: 'Skills',
     url: '/skills',
     icon: Award,
+  },
+  {
+    title: 'Newsletter',
+    url: '/newsletter',
+    icon: Mail,
   },
   {
     title: 'Settings',

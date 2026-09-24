@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { UseFormReturn, Controller } from 'react-hook-form';
 import CreatableSelect from 'react-select/creatable';
 import { Input } from '@/src/components/ui/input';
@@ -20,6 +20,7 @@ import {
 } from '@/src/components/ui/select';
 import { BlogStatus, IBlogTag } from '@/src/types/blog.interface';
 import { blogCategories, blogTags as TAG_OPTIONS_ARRAY } from '@/src/constants/blogTaxonomy';
+import { AlertCircle } from 'lucide-react';
 
 export const BLOG_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
@@ -37,8 +38,21 @@ export const TAG_OPTIONS = Array.from(TAG_OPTIONS_ARRAY).map((tag) => ({
   label: tag,
 }));
 
+export const MAX_TAGS = 10;
+
+/** Converts a title string into a URL-safe slug */
+function toSlug(title: string) {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 export interface BlogFormValues {
   title: string;
+  slug?: string;
   category: string;
   content: string;
   tags: IBlogTag[];
@@ -52,9 +66,32 @@ export interface BlogFormValues {
 interface BlogMetaFieldsProps {
   form: UseFormReturn<BlogFormValues>;
   status: string;
+  isEdit?: boolean;
 }
 
-export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status }) => {
+export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, isEdit }) => {
+  // Track whether the slug is still being auto-generated from title
+  const autoSlugRef = useRef(true);
+  const titleValue = form.watch('title');
+
+  useEffect(() => {
+    if (!isEdit && autoSlugRef.current && titleValue) {
+      form.setValue('slug', toSlug(titleValue), { shouldValidate: false });
+    }
+  }, [titleValue, form, isEdit]);
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    autoSlugRef.current = false;
+    const cleaned = e.target.value
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-');
+    form.setValue('slug', cleaned, { shouldValidate: true });
+  };
+
+  const tagCount = form.watch('tags')?.length ?? 0;
+  const tagLimitReached = tagCount >= MAX_TAGS;
+
   return (
     <>
       {/* Title */}
@@ -69,6 +106,42 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status }) 
               <Input placeholder="My awesome blog post" {...field} />
             </FormControl>
             <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Slug */}
+      <FormField
+        control={form.control}
+        name="slug"
+        rules={{
+          pattern: {
+            value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+            message: 'Slug must use lowercase letters, numbers, and hyphens only (e.g. my-blog-post)',
+          },
+        }}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              Slug{' '}
+              <span className="text-xs text-muted-foreground font-normal">
+                (auto-generated from title, or edit manually)
+              </span>
+            </FormLabel>
+            <FormControl>
+              <Input
+                placeholder="my-blog-post"
+                {...field}
+                onChange={handleSlugChange}
+                className="font-mono text-sm"
+              />
+            </FormControl>
+            <FormMessage />
+            {field.value && (
+              <p className="text-xs text-muted-foreground">
+                URL: <span className="text-foreground">/blogs/{field.value}</span>
+              </p>
+            )}
           </FormItem>
         )}
       />
@@ -195,7 +268,24 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status }) 
 
       {/* Tags */}
       <FormItem>
-        <FormLabel>Tags</FormLabel>
+        <div className="flex items-center justify-between mb-1">
+          <FormLabel>Tags</FormLabel>
+          <span
+            className={`text-xs font-medium tabular-nums transition-colors ${
+              tagLimitReached ? 'text-destructive' : 'text-muted-foreground'
+            }`}
+          >
+            {tagCount} / {MAX_TAGS}
+          </span>
+        </div>
+
+        {tagLimitReached && (
+          <div className="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive mb-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>Maximum {MAX_TAGS} tags allowed. Remove a tag to add another.</span>
+          </div>
+        )}
+
         <Controller
           control={form.control}
           name="tags"
@@ -206,21 +296,35 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status }) 
               options={TAG_OPTIONS}
               value={field.value}
               onChange={(tags) => field.onChange(tags || [])}
+              isOptionDisabled={() => tagLimitReached}
+              noOptionsMessage={({ inputValue }) =>
+                tagLimitReached
+                  ? `Tag limit reached (${MAX_TAGS} max)`
+                  : inputValue
+                    ? 'No options — type to create'
+                    : 'No options'
+              }
               classNames={{
                 control: ({ isFocused }) =>
                   `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
-                    isFocused ? 'border-blue-500' : 'border-input hover:border-blue-500'
+                    tagLimitReached
+                      ? 'border-destructive/50'
+                      : isFocused
+                        ? 'border-blue-500'
+                        : 'border-input hover:border-blue-500'
                   }`,
                 menu: () =>
                   'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
                 menuList: () => 'py-1',
-                option: ({ isFocused, isSelected }) =>
+                option: ({ isFocused, isSelected, isDisabled }) =>
                   `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
-                    isSelected
-                      ? 'bg-blue-600 text-white'
-                      : isFocused
-                        ? 'bg-accent text-accent-foreground'
-                        : 'bg-transparent'
+                    isDisabled
+                      ? 'opacity-40 cursor-not-allowed'
+                      : isSelected
+                        ? 'bg-blue-600 text-white'
+                        : isFocused
+                          ? 'bg-accent text-accent-foreground'
+                          : 'bg-transparent'
                   }`,
                 multiValue: () =>
                   'inline-flex items-center gap-1 bg-primary/10 border border-primary/30 rounded-sm mx-1 px-2 py-0.5',
@@ -237,7 +341,7 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status }) 
                 dropdownIndicator: ({ isFocused }) =>
                   `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
               }}
-              placeholder="Select or create tags"
+              placeholder={tagLimitReached ? `Limit reached (${MAX_TAGS} max)` : 'Select or create tags'}
             />
           )}
         />

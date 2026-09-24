@@ -8,6 +8,7 @@ import WorkingAreasSection from '../components/sections/WorkingAreasSection';
 import ProjectsSection from '../components/sections/ProjectsSection';
 import EducationSection from '../components/sections/EducationSection';
 import BlogSection from '../components/sections/BlogSection';
+import NewsletterSection from '../components/sections/NewsletterSection';
 import GitHubSection from '../components/sections/GitHubSection';
 import ContactSection from '../components/sections/ContactSection';
 import ScrollToTop from '../components/ui/ScrollToTop';
@@ -61,6 +62,7 @@ export default function HomePage() {
         <ExperienceSection />
         <TestimonialsSection />
         <BlogSection />
+        <NewsletterSection />
         <GitHubSection />
         <EducationSection />
         <WorkingAreasSection />
