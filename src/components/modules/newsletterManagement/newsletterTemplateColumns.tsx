@@ -14,10 +14,10 @@ export const newsletterTemplateColumns: Column<NewsletterTemplateItem>[] = [
           <FileText className="size-4.5" />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="font-semibold text-foreground text-sm truncate max-w-[260px] sm:max-w-md">
+          <span className="font-semibold text-foreground text-sm truncate max-w-65 sm:max-w-md">
             {row.subject}
           </span>
-          <span className="text-xs text-muted-foreground line-clamp-1 mt-0.5 max-w-[260px] sm:max-w-md">
+          <span className="text-xs text-muted-foreground line-clamp-1 mt-0.5 max-w-65 sm:max-w-md">
             {row.content.replace(/[#*`_>\[\]]/g, '').trim()}
           </span>
         </div>
