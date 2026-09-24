@@ -185,7 +185,8 @@ export default async function NewsletterConfirmPage({
                 Subscription Confirmed! 🎉
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                Thank you for confirming your email. You are now officially subscribed to the newsletter.
+                Thank you for confirming your email. You are now officially subscribed to the
+                newsletter.
               </p>
             </div>
 
@@ -219,9 +220,7 @@ export default async function NewsletterConfirmPage({
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {state === 'expired'
-                  ? 'Verification Link Expired'
-                  : 'Invalid Verification Link'}
+                {state === 'expired' ? 'Verification Link Expired' : 'Invalid Verification Link'}
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                 {state === 'expired'

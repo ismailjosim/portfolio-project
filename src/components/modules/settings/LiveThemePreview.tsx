@@ -59,8 +59,8 @@ export const LiveThemePreview: React.FC<LiveThemePreviewProps> = ({
           </h3>
 
           <p className="text-xs text-muted-foreground leading-relaxed">
-            The quick brown fox jumps over the lazy dog. Experience modern software
-            engineering with tailored palettes and typography.
+            The quick brown fox jumps over the lazy dog. Experience modern software engineering with
+            tailored palettes and typography.
           </p>
 
           {/* Buttons showcase */}
@@ -113,15 +113,15 @@ export const LiveThemePreview: React.FC<LiveThemePreviewProps> = ({
           <span>
             {isFullySynced ? (
               <>
-                This palette, font, and theme mode are stored in the database and served to
-                every visitor on their first paint — homepage, hero section, project cards,
-                blog reader, and dashboard tables.
+                This palette, font, and theme mode are stored in the database and served to every
+                visitor on their first paint — homepage, hero section, project cards, blog reader,
+                and dashboard tables.
               </>
             ) : (
               <>
                 You are previewing changes locally. Click{' '}
-                <span className="font-semibold text-foreground">Apply Globally</span> to store
-                them in the database and serve them to every visitor.
+                <span className="font-semibold text-foreground">Apply Globally</span> to store them
+                in the database and serve them to every visitor.
               </>
             )}
           </span>

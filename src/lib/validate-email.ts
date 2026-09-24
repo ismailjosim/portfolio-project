@@ -113,9 +113,9 @@ const DISPOSABLE_DOMAINS = new Set([
   'getonemail.com',
   'getonemail.net',
   'gishpuppy.com',
-  'gmail.com.br',  // typo-squatter
-  'gmial.com',     // typo-squatter
-  'gnmail.com',    // typo-squatter
+  'gmail.com.br', // typo-squatter
+  'gmial.com', // typo-squatter
+  'gnmail.com', // typo-squatter
   'godmail.gq',
   'grr.la',
   'gsrv.co.uk',
@@ -329,7 +329,7 @@ const DISPOSABLE_DOMAINS = new Set([
   'pepbot.com',
   'pjjkp.com',
   'plexolan.de',
-  'poczta.onet.pl',  // sometimes abused
+  'poczta.onet.pl', // sometimes abused
   'politikerclub.de',
   'poofy.org',
   'pookmail.com',
@@ -342,7 +342,7 @@ const DISPOSABLE_DOMAINS = new Set([
   'prtz.eu',
   'pubmail886.com',
   'putthisinyourspamdatabase.com',
-  'qq.com',  // often abused for throwaway
+  'qq.com', // often abused for throwaway
   'queuemail.com',
   'quickinbox.com',
   'quickmail.nl',
@@ -394,7 +394,7 @@ const DISPOSABLE_DOMAINS = new Set([
   'sofimail.com',
   'sofort-mail.de',
   'sogetthis.com',
-  'sohu.com',  // sometimes abused
+  'sohu.com', // sometimes abused
   'spam.la',
   'spam.mn',
   'spam.org.tr',

@@ -33,12 +33,7 @@ export const BlogCoverImageField: React.FC<BlogCoverImageFieldProps> = ({
 
         {coverPreview ? (
           <div className="relative w-40 h-24 rounded-lg overflow-hidden border border-border group">
-            <Image
-              src={coverPreview}
-              alt="Cover preview"
-              fill
-              className="object-cover"
-            />
+            <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <Button
                 type="button"

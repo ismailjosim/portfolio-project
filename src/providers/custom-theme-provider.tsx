@@ -13,7 +13,13 @@ import {
   type ThemeMode,
 } from '@/src/lib/theme-options';
 
-export type { FontId, PaletteId, ThemeMode, GlobalThemeSettings, GlobalThemeSettings as ThemeSettings };
+export type {
+  FontId,
+  PaletteId,
+  ThemeMode,
+  GlobalThemeSettings,
+  GlobalThemeSettings as ThemeSettings,
+};
 
 export {
   PALETTES,

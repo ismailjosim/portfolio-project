@@ -1,20 +1,27 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/src/components/ui/card';
 import { Palette, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { PALETTES, type PaletteConfig, type PaletteId } from '@/src/providers/custom-theme-provider';
+import {
+  PALETTES,
+  type PaletteConfig,
+  type PaletteId,
+} from '@/src/providers/custom-theme-provider';
 
 interface PaletteSelectorProps {
   palette: PaletteId;
   onSelectPalette: (paletteId: PaletteId) => void;
 }
 
-export const PaletteSelector: React.FC<PaletteSelectorProps> = ({
-  palette,
-  onSelectPalette,
-}) => {
+export const PaletteSelector: React.FC<PaletteSelectorProps> = ({ palette, onSelectPalette }) => {
   return (
     <Card className="border-border/80 bg-card/70 backdrop-blur-xl dark:border-slate-800/80 dark:bg-[#0A1124]/90 shadow-md">
       <CardHeader className="pb-4">
@@ -61,9 +68,7 @@ export const PaletteSelector: React.FC<PaletteSelectorProps> = ({
 
                 <div className="flex-1 min-w-0 space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-xs text-foreground truncate">
-                      {p.name}
-                    </h4>
+                    <h4 className="font-semibold text-xs text-foreground truncate">{p.name}</h4>
                     {p.id === 'cyan' && (
                       <span className="rounded-full bg-primary/10 border border-primary/20 px-1.5 py-0.2 text-[9px] font-semibold text-primary">
                         Default

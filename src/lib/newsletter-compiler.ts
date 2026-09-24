@@ -22,7 +22,10 @@ export interface CompileEmailOptions {
   subscriberEmail?: string;
 }
 
-export function compileNewsletterToHtml(content: string, options: CompileEmailOptions = {}): string {
+export function compileNewsletterToHtml(
+  content: string,
+  options: CompileEmailOptions = {}
+): string {
   const {
     subject = '',
     unsubscribeUrl = '#',
@@ -83,7 +86,10 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     );
 
     // Bold: **text**
-    result = result.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #0f172a; font-weight: 600;">$1</strong>');
+    result = result.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong style="color: #0f172a; font-weight: 600;">$1</strong>'
+    );
 
     // Italic: *text* or _text_
     result = result.replace(/(?:^|\s)\*(.*?)\*(?=\s|$)/g, ' <em>$1</em>');
@@ -118,7 +124,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (trimmed.startsWith('# ')) {
       closeList();
       const text = processInline(trimmed.substring(2));
-      htmlParts.push(`<h1 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 24px 0 12px; line-height: 1.3;">${text}</h1>`);
+      htmlParts.push(
+        `<h1 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 24px 0 12px; line-height: 1.3;">${text}</h1>`
+      );
       continue;
     }
 
@@ -126,7 +134,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (trimmed.startsWith('## ')) {
       closeList();
       const text = processInline(trimmed.substring(3));
-      htmlParts.push(`<h2 style="font-size: 20px; font-weight: 600; color: #0f172a; margin: 20px 0 10px; line-height: 1.35;">${text}</h2>`);
+      htmlParts.push(
+        `<h2 style="font-size: 20px; font-weight: 600; color: #0f172a; margin: 20px 0 10px; line-height: 1.35;">${text}</h2>`
+      );
       continue;
     }
 
@@ -134,7 +144,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (trimmed.startsWith('### ')) {
       closeList();
       const text = processInline(trimmed.substring(4));
-      htmlParts.push(`<h3 style="font-size: 17px; font-weight: 600; color: #1e293b; margin: 16px 0 8px; line-height: 1.4;">${text}</h3>`);
+      htmlParts.push(
+        `<h3 style="font-size: 17px; font-weight: 600; color: #1e293b; margin: 16px 0 8px; line-height: 1.4;">${text}</h3>`
+      );
       continue;
     }
 
@@ -142,7 +154,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (trimmed.startsWith('> ')) {
       closeList();
       const text = processInline(trimmed.substring(2));
-      htmlParts.push(`<blockquote style="margin: 16px 0; padding-left: 16px; border-left: 4px solid #0284c7; color: #475569; font-style: italic;">${text}</blockquote>`);
+      htmlParts.push(
+        `<blockquote style="margin: 16px 0; padding-left: 16px; border-left: 4px solid #0284c7; color: #475569; font-style: italic;">${text}</blockquote>`
+      );
       continue;
     }
 
@@ -150,7 +164,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (/^[-*]\s+/.test(trimmed)) {
       if (!inList || listType !== 'ul') {
         closeList();
-        htmlParts.push('<ul style="margin: 12px 0; padding-left: 24px; color: #334155; line-height: 1.6;">');
+        htmlParts.push(
+          '<ul style="margin: 12px 0; padding-left: 24px; color: #334155; line-height: 1.6;">'
+        );
         inList = true;
         listType = 'ul';
       }
@@ -163,7 +179,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     if (/^\d+[.)]\s+/.test(trimmed)) {
       if (!inList || listType !== 'ol') {
         closeList();
-        htmlParts.push('<ol style="margin: 12px 0; padding-left: 24px; color: #334155; line-height: 1.6;">');
+        htmlParts.push(
+          '<ol style="margin: 12px 0; padding-left: 24px; color: #334155; line-height: 1.6;">'
+        );
         inList = true;
         listType = 'ol';
       }
@@ -175,7 +193,9 @@ export function compileNewsletterToHtml(content: string, options: CompileEmailOp
     // Normal paragraph
     closeList();
     const processed = processInline(trimmed);
-    htmlParts.push(`<p style="font-size: 15px; color: #334155; line-height: 1.65; margin: 0 0 16px;">${processed}</p>`);
+    htmlParts.push(
+      `<p style="font-size: 15px; color: #334155; line-height: 1.65; margin: 0 0 16px;">${processed}</p>`
+    );
   }
 
   closeList();

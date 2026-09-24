@@ -3,7 +3,8 @@ import SettingsClientView from '@/src/components/modules/settings/SettingsClient
 
 export const metadata: Metadata = {
   title: 'Settings — Theme & Typography',
-  description: 'Customize portfolio visual theme, color schemes, Google fonts, and global styling engine.',
+  description:
+    'Customize portfolio visual theme, color schemes, Google fonts, and global styling engine.',
   robots: {
     index: false,
     follow: false,

@@ -2,21 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  Activity,
-  ArrowRight,
-  Github,
-  Layers3,
-  Terminal,
-  Compass,
-} from 'lucide-react';
+import { Activity, ArrowRight, Github, Layers3, Terminal, Compass } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button } from '../ui/button';
-import {
-  type ProjectCardProject,
-  getTechIcon,
-  getProjectLinks,
-} from './projectCardUtils';
+import { type ProjectCardProject, getTechIcon, getProjectLinks } from './projectCardUtils';
 
 export type { ProjectCardProject };
 

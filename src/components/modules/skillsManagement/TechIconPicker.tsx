@@ -24,11 +24,7 @@ interface TechIconPickerProps {
 
 const LOCAL_STORAGE_KEY = 'custom_skill_icons_cache';
 
-export const TechIconPicker: React.FC<TechIconPickerProps> = ({
-  value,
-  onChange,
-  skillName,
-}) => {
+export const TechIconPicker: React.FC<TechIconPickerProps> = ({ value, onChange, skillName }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'tech' | 'lucide' | 'custom'>('tech');
@@ -91,9 +87,7 @@ export const TechIconPicker: React.FC<TechIconPickerProps> = ({
     const q = search.toLowerCase().trim();
 
     if (selectedCategory === 'custom') {
-      return allTechSkills.custom.filter((s) =>
-        q ? s.name.toLowerCase().includes(q) : true
-      );
+      return allTechSkills.custom.filter((s) => (q ? s.name.toLowerCase().includes(q) : true));
     }
 
     const filteredPresets = allTechSkills.preset.filter((s) => {

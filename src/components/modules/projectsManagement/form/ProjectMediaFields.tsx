@@ -45,12 +45,7 @@ export const ProjectMediaFields: React.FC<ProjectMediaFieldsProps> = ({
 
           {imagePreview ? (
             <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-border group">
-              <Image
-                src={imagePreview}
-                alt="Cover Preview"
-                fill
-                className="object-cover"
-              />
+              <Image src={imagePreview} alt="Cover Preview" fill className="object-cover" />
               <button
                 type="button"
                 onClick={onRemoveCover}
@@ -102,12 +97,7 @@ export const ProjectMediaFields: React.FC<ProjectMediaFieldsProps> = ({
               key={preview + index}
               className="relative aspect-video rounded-lg overflow-hidden border border-border group"
             >
-              <Image
-                src={preview}
-                alt={`Demo ${index + 1}`}
-                fill
-                className="object-cover"
-              />
+              <Image src={preview} alt={`Demo ${index + 1}`} fill className="object-cover" />
               <button
                 type="button"
                 onClick={() => onRemoveDemoImage(index)}

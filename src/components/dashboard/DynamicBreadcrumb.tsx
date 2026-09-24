@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -13,12 +13,16 @@ import {
 
 const breadcrumbLabels: Record<string, string> = {
   dashboard: 'Dashboard',
+  overview: 'Overview',
   blog: 'Blog',
   blogs: 'Blogs',
   projects: 'Projects',
   skills: 'Skills',
   experiences: 'Experiences',
+  newsletter: 'Newsletter',
   'blog-editor': 'Blog Editor',
+  analytics: 'Analytics',
+  settings: 'Settings',
 };
 
 export const DynamicBreadcrumb = () => {
@@ -55,15 +59,15 @@ export const DynamicBreadcrumb = () => {
     <Breadcrumb>
       <BreadcrumbList>
         {breadcrumbItems.map((item, index) => (
-          <div key={item.href} className="flex items-center gap-2">
+          <React.Fragment key={item.href}>
             <BreadcrumbItem className={item.isActive ? 'block' : 'hidden md:block'}>
               {item.isActive ? (
-                <BreadcrumbPage className="font-semibold text-foreground truncate max-w-[160px] sm:max-w-none">
+                <BreadcrumbPage className="font-semibold text-foreground truncate max-w-40 sm:max-w-none">
                   {item.label}
                 </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={item.href} className="truncate max-w-[120px] sm:max-w-none">
+                  <Link href={item.href} className="truncate max-w-30 sm:max-w-none">
                     {item.label}
                   </Link>
                 </BreadcrumbLink>
@@ -73,7 +77,7 @@ export const DynamicBreadcrumb = () => {
             {index < breadcrumbItems.length - 1 && (
               <BreadcrumbSeparator className="hidden md:block" />
             )}
-          </div>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

@@ -38,10 +38,7 @@ interface SkillFormFieldsProps {
   availableCategories: SkillCategoryDTO[];
 }
 
-export const SkillFormFields: React.FC<SkillFormFieldsProps> = ({
-  form,
-  availableCategories,
-}) => {
+export const SkillFormFields: React.FC<SkillFormFieldsProps> = ({ form, availableCategories }) => {
   const currentSkillName = form.watch('name');
 
   return (
@@ -210,9 +207,7 @@ export const SkillFormFields: React.FC<SkillFormFieldsProps> = ({
             </FormControl>
             <div>
               <FormLabel className="m-0 cursor-pointer">Publish this skill</FormLabel>
-              <p className="text-xs text-muted-foreground">
-                Visible on your public portfolio
-              </p>
+              <p className="text-xs text-muted-foreground">Visible on your public portfolio</p>
             </div>
           </FormItem>
         )}

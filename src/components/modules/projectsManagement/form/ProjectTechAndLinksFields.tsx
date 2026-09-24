@@ -80,8 +80,7 @@ export const ProjectTechAndLinksFields: React.FC<ProjectTechAndLinksFieldsProps>
                   `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
                     isFocused ? 'border-blue-500' : 'border-input hover:border-blue-500'
                   }`,
-                menu: () =>
-                  'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg',
+                menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg',
                 menuList: () => 'py-1',
                 option: ({ isFocused, isSelected }) =>
                   `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${

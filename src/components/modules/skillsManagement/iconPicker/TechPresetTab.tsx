@@ -105,13 +105,9 @@ export const TechPresetTab: React.FC<TechPresetTabProps> = ({
                 />
                 <span className="truncate max-w-32">{preset.name}</span>
                 {isCustom && (
-                  <span className="text-[9px] text-primary/80 font-mono font-semibold">
-                    Custom
-                  </span>
+                  <span className="text-[9px] text-primary/80 font-mono font-semibold">Custom</span>
                 )}
-                {isSelected && (
-                  <Check className="h-2.5 w-2.5 text-primary ml-0.5 shrink-0" />
-                )}
+                {isSelected && <Check className="h-2.5 w-2.5 text-primary ml-0.5 shrink-0" />}
               </button>
             );
           })

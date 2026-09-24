@@ -178,11 +178,7 @@ export const CustomIconTab: React.FC<CustomIconTabProps> = ({
           <div className="flex items-center gap-2.5 truncate min-w-0">
             {customLogoUrl ? (
               <div className="w-7 h-7 rounded-md bg-muted/60 border border-border flex items-center justify-center p-0.5 shrink-0 overflow-hidden">
-                <SkillIcon
-                  icon={customLogoUrl}
-                  size={22}
-                  className="text-base object-contain"
-                />
+                <SkillIcon icon={customLogoUrl} size={22} className="text-base object-contain" />
               </div>
             ) : (
               <ImageIcon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -253,11 +249,7 @@ export const CustomIconTab: React.FC<CustomIconTabProps> = ({
                       : 'border-border/70 bg-card hover:border-primary/40 hover:bg-muted/60 text-foreground'
                   }`}
                 >
-                  <SkillIcon
-                    icon={item.url}
-                    size={13}
-                    className="shrink-0 object-contain"
-                  />
+                  <SkillIcon icon={item.url} size={13} className="shrink-0 object-contain" />
                   <span className="truncate max-w-28">{item.name}</span>
                   <span
                     role="button"

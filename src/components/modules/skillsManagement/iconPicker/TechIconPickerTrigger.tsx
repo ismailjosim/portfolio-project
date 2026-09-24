@@ -28,16 +28,10 @@ export const TechIconPickerTrigger = React.forwardRef<
         {value ? (
           <>
             <div className="w-6 h-6 rounded-md bg-muted/60 dark:bg-muted/30 border border-border/60 flex items-center justify-center p-0.5 shrink-0 overflow-hidden shadow-2xs">
-              <SkillIcon
-                icon={value}
-                size={18}
-                className="text-base shrink-0 object-contain"
-              />
+              <SkillIcon icon={value} size={18} className="text-base shrink-0 object-contain" />
             </div>
             <div className="flex items-center gap-1.5 truncate min-w-0">
-              <span className="truncate text-xs font-medium text-foreground">
-                {displayLabel}
-              </span>
+              <span className="truncate text-xs font-medium text-foreground">{displayLabel}</span>
               {isUrl && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium bg-primary/10 text-primary border border-primary/20 shrink-0">
                   Custom

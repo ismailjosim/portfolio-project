@@ -29,4 +29,16 @@ export interface Stats {
   totalInactive: number;
   total: number;
   blockedCount: number;
+  templateCount?: number;
+}
+
+export interface NewsletterTemplateItem {
+  _id: string;
+  subject: string;
+  content: string;
+  html?: string;
+  recipientCount: number;
+  sentAt: string;
+  createdAt: string;
+  updatedAt: string;
 }

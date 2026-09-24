@@ -6,11 +6,16 @@ import NewsletterManagementHeader from '@/src/components/modules/newsletterManag
 import NewsletterStatCards from '@/src/components/modules/newsletterManagement/NewsletterStatCards';
 import NewsletterFilter from '@/src/components/modules/newsletterManagement/NewsletterFilter';
 import NewsletterTable from '@/src/components/modules/newsletterManagement/NewsletterTable';
-import { listSubscribersForAdmin } from '@/src/services/newsletter-management';
+import NewsletterTemplatesTable from '@/src/components/modules/newsletterManagement/NewsletterTemplatesTable';
+import {
+  listSubscribersForAdmin,
+  listTemplatesForAdmin,
+} from '@/src/services/newsletter-management';
 
 export const metadata: Metadata = {
-  title: 'Newsletter Subscribers',
-  description: 'Manage newsletter subscribers, broadcast newsletters, and view subscription analytics.',
+  title: 'Newsletter Subscribers & Templates',
+  description:
+    'Manage newsletter subscribers, broadcast newsletters, and view reusable email templates.',
 };
 
 const DashboardNewsletterPage = async ({
@@ -19,31 +24,64 @@ const DashboardNewsletterPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const searchParamsObj = await searchParams;
-  const result = await listSubscribersForAdmin({
-    page: searchParamsObj.page ? Number(searchParamsObj.page) : undefined,
-    limit: searchParamsObj.limit ? Number(searchParamsObj.limit) : undefined,
+  const isTemplatesTab = searchParamsObj.tab === 'templates';
+
+  // Always fetch subscriber stats for header count badges and overview
+  const subscribersResult = await listSubscribersForAdmin({
+    page: !isTemplatesTab && searchParamsObj.page ? Number(searchParamsObj.page) : 1,
+    limit: !isTemplatesTab && searchParamsObj.limit ? Number(searchParamsObj.limit) : 10,
     status: typeof searchParamsObj.status === 'string' ? searchParamsObj.status : undefined,
-    search: typeof searchParamsObj.searchTerm === 'string' ? searchParamsObj.searchTerm : undefined,
-    sortBy: typeof searchParamsObj.sortBy === 'string' ? searchParamsObj.sortBy : undefined,
-    orderBy: typeof searchParamsObj.orderBy === 'string' ? searchParamsObj.orderBy : undefined,
+    search:
+      !isTemplatesTab && typeof searchParamsObj.searchTerm === 'string'
+        ? searchParamsObj.searchTerm
+        : undefined,
+    sortBy:
+      !isTemplatesTab && typeof searchParamsObj.sortBy === 'string'
+        ? searchParamsObj.sortBy
+        : undefined,
+    orderBy:
+      !isTemplatesTab && typeof searchParamsObj.orderBy === 'string'
+        ? searchParamsObj.orderBy
+        : undefined,
   });
 
-  const totalPages = result.pagination.totalPages;
+  const templatesResult = isTemplatesTab
+    ? await listTemplatesForAdmin({
+        page: searchParamsObj.page ? Number(searchParamsObj.page) : 1,
+        limit: searchParamsObj.limit ? Number(searchParamsObj.limit) : 10,
+        search:
+          typeof searchParamsObj.searchTerm === 'string' ? searchParamsObj.searchTerm : undefined,
+        sortBy: typeof searchParamsObj.sortBy === 'string' ? searchParamsObj.sortBy : undefined,
+        orderBy: typeof searchParamsObj.orderBy === 'string' ? searchParamsObj.orderBy : undefined,
+      })
+    : null;
+
+  const activePage = isTemplatesTab
+    ? templatesResult?.pagination.page || 1
+    : subscribersResult.pagination.page;
+  const totalPages = isTemplatesTab
+    ? templatesResult?.pagination.totalPages || 1
+    : subscribersResult.pagination.totalPages || 1;
 
   return (
     <div className="space-y-6">
-      <NewsletterManagementHeader />
+      <NewsletterManagementHeader
+        currentTab={isTemplatesTab ? 'templates' : 'subscribers'}
+        templateCount={subscribersResult.stats.templateCount}
+        subscriberCount={subscribersResult.stats.total}
+      />
 
-      <NewsletterStatCards stats={result.stats} />
+      <NewsletterStatCards stats={subscribersResult.stats} />
 
       <NewsletterFilter />
 
       <Suspense fallback={<TableSkeleton columns={5} rows={10} />}>
-        <NewsletterTable subscribers={result.subscribers} />
-        <TablePagination
-          currentPage={result.pagination.page}
-          totalPages={totalPages || 1}
-        />
+        {isTemplatesTab && templatesResult ? (
+          <NewsletterTemplatesTable templates={templatesResult.templates} />
+        ) : (
+          <NewsletterTable subscribers={subscribersResult.subscribers} />
+        )}
+        <TablePagination currentPage={activePage} totalPages={totalPages} />
       </Suspense>
     </div>
   );

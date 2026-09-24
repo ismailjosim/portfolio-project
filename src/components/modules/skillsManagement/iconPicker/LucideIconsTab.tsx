@@ -72,9 +72,7 @@ export const LucideIconsTab: React.FC<LucideIconsTabProps> = ({
               }`}
             >
               <IconComponent size={16} className="mb-1" />
-              <span className="text-[9px] text-muted-foreground truncate w-full">
-                {iconName}
-              </span>
+              <span className="text-[9px] text-muted-foreground truncate w-full">{iconName}</span>
             </button>
           );
         })}

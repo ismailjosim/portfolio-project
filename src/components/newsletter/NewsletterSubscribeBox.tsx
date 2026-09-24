@@ -96,8 +96,8 @@ export default function NewsletterSubscribeBox({
               <h3 className="text-xl font-bold text-foreground">Check your inbox to confirm!</h3>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
                 We sent a 24-hour verification link to{' '}
-                <strong className="text-foreground">{submittedEmail}</strong>. Click the confirmation
-                button in the email to activate your free subscription.
+                <strong className="text-foreground">{submittedEmail}</strong>. Click the
+                confirmation button in the email to activate your free subscription.
               </p>
             </div>
             <div className="pt-2">

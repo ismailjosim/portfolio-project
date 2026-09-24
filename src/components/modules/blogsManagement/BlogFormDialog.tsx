@@ -31,12 +31,7 @@ interface IBlogDialogProps {
   blog?: IBlog;
 }
 
-export const BlogFormDialog: React.FC<IBlogDialogProps> = ({
-  open,
-  onClose,
-  onSuccess,
-  blog,
-}) => {
+export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSuccess, blog }) => {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const mdFileInputRef = useRef<HTMLInputElement>(null);
   const coverFileRef = useRef<File | null>(null);

@@ -75,8 +75,7 @@ export function NewsletterStatCards({ stats }: { stats: Stats }) {
       {cards.map((card) => {
         const Icon = card.icon;
         const isSelected =
-          (card.statusKey === 'all' && currentStatus === 'all') ||
-          card.statusKey === currentStatus;
+          (card.statusKey === 'all' && currentStatus === 'all') || card.statusKey === currentStatus;
 
         return (
           <button

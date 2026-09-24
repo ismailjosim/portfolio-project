@@ -3,6 +3,7 @@ import { connectDB } from '../../../../lib/mongodb';
 import { resend } from '../../../../lib/resend';
 import NewsletterSubscriber from '../../../../models/NewsletterSubscriber';
 import BlockedEmail from '../../../../models/BlockedEmail';
+import NewsletterTemplate from '../../../../models/NewsletterTemplate';
 import { compileNewsletterToHtml } from '../../../../lib/newsletter-compiler';
 import { logEmailSent } from '@/src/lib/email-logger';
 
@@ -136,6 +137,26 @@ export async function POST(req: Request) {
         },
         { status: 400 }
       );
+    }
+
+    // Save one copy of the sent email in database as a reusable template
+    try {
+      await NewsletterTemplate.create({
+        subject: subject.trim(),
+        content: content ? content.trim() : (html || '').trim(),
+        html: content
+          ? compileNewsletterToHtml(content, {
+              subject,
+              senderName: 'Ismail Josim',
+              unsubscribeUrl: '#unsubscribe',
+              subscriberName: 'Subscriber',
+            })
+          : html,
+        recipientCount: sentCount,
+        sentAt: new Date(),
+      });
+    } catch (saveErr) {
+      console.error('[NewsletterTemplate] Failed to archive sent newsletter template:', saveErr);
     }
 
     if (failedCount > 0) {

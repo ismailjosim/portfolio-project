@@ -34,8 +34,8 @@ export const SkillIcon: React.FC<SkillIconProps> = ({ icon, className = 'text-lg
   const extraClasses = needsDarkInvert
     ? 'dark:brightness-0 dark:invert dark:opacity-95'
     : isPhotoshop
-    ? 'dark:contrast-125 dark:brightness-125'
-    : '';
+      ? 'dark:contrast-125 dark:brightness-125'
+      : '';
 
   // 1. Devicon font classes (e.g. "devicon-react-original colored" or "devicon-javascript-plain")
   if (icon.startsWith('devicon-')) {
@@ -48,7 +48,12 @@ export const SkillIcon: React.FC<SkillIconProps> = ({ icon, className = 'text-lg
   }
 
   // 2. Image URL / Cloudinary / SVG upload
-  if (icon.startsWith('http://') || icon.startsWith('https://') || icon.startsWith('/') || icon.startsWith('data:')) {
+  if (
+    icon.startsWith('http://') ||
+    icon.startsWith('https://') ||
+    icon.startsWith('/') ||
+    icon.startsWith('data:')
+  ) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -63,7 +68,9 @@ export const SkillIcon: React.FC<SkillIconProps> = ({ icon, className = 'text-lg
   }
 
   // 3. Lucide icon name fallback
-  const LucideComponent = (LucideIcons as unknown as Record<string, React.FC<{ size?: number; className?: string }>>)[icon];
+  const LucideComponent = (
+    LucideIcons as unknown as Record<string, React.FC<{ size?: number; className?: string }>>
+  )[icon];
   if (LucideComponent) {
     return <LucideComponent size={size} className="shrink-0" />;
   }

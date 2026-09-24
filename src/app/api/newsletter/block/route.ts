@@ -78,10 +78,7 @@ export async function DELETE(req: Request) {
     const email = (searchParams.get('email') || '').trim().toLowerCase();
 
     if (!email) {
-      return NextResponse.json(
-        { success: false, message: 'Email is required.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: 'Email is required.' }, { status: 400 });
     }
 
     await BlockedEmail.deleteOne({ email });

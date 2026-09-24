@@ -79,9 +79,7 @@ export function NewsletterTable({ subscribers }: NewsletterTableProps) {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(
-          `Subscriber ${sub.email} marked as ${!sub.isActive ? 'active' : 'inactive'}`
-        );
+        toast.success(`Subscriber ${sub.email} marked as ${!sub.isActive ? 'active' : 'inactive'}`);
         handleRefresh();
       } else {
         toast.error(data.message || 'Failed to update subscriber');

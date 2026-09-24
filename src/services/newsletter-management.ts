@@ -2,7 +2,13 @@ import crypto from 'crypto';
 import { connectDB } from '../lib/mongodb';
 import NewsletterSubscriber from '../models/NewsletterSubscriber';
 import BlockedEmail, { IBlockedEmail } from '../models/BlockedEmail';
-import { Subscriber, Stats, SubscriberStatus } from '../types/newsletter.interface';
+import NewsletterTemplate from '../models/NewsletterTemplate';
+import {
+  Subscriber,
+  Stats,
+  SubscriberStatus,
+  NewsletterTemplateItem,
+} from '../types/newsletter.interface';
 
 export interface ListSubscribersParams {
   page?: number;
@@ -11,6 +17,27 @@ export interface ListSubscribersParams {
   search?: string;
   sortBy?: string;
   orderBy?: string;
+}
+
+export interface ListTemplatesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  orderBy?: string;
+}
+
+export interface ListTemplatesResult {
+  templates: NewsletterTemplateItem[];
+  total: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
 export interface ListSubscribersResult {
@@ -73,25 +100,28 @@ export async function listSubscribersForAdmin(
     }
 
     // 3. Compute stats
-    const [totalActive, totalInactive, totalCountAll, blockedCount] = await Promise.all([
-      NewsletterSubscriber.countDocuments({
-        isActive: true,
-        isVerified: { $ne: false },
-        email: { $nin: blockedEmails },
-      }),
-      NewsletterSubscriber.countDocuments({
-        isActive: false,
-        email: { $nin: blockedEmails },
-      }),
-      NewsletterSubscriber.countDocuments(),
-      BlockedEmail.countDocuments(),
-    ]);
+    const [totalActive, totalInactive, totalCountAll, blockedCount, templateCount] =
+      await Promise.all([
+        NewsletterSubscriber.countDocuments({
+          isActive: true,
+          isVerified: { $ne: false },
+          email: { $nin: blockedEmails },
+        }),
+        NewsletterSubscriber.countDocuments({
+          isActive: false,
+          email: { $nin: blockedEmails },
+        }),
+        NewsletterSubscriber.countDocuments(),
+        BlockedEmail.countDocuments(),
+        NewsletterTemplate.countDocuments(),
+      ]);
 
     const stats: Stats = {
       totalActive,
       totalInactive,
       total: totalCountAll,
       blockedCount,
+      templateCount,
     };
 
     // 4. Construct search & filter query
@@ -173,7 +203,9 @@ export async function listSubscribersForAdmin(
         status,
         isBlocked,
         blockReason: blockedInfo?.reason,
-        blockedAt: blockedInfo?.createdAt ? new Date(blockedInfo.createdAt).toISOString() : undefined,
+        blockedAt: blockedInfo?.createdAt
+          ? new Date(blockedInfo.createdAt).toISOString()
+          : undefined,
       };
     });
 
@@ -193,7 +225,7 @@ export async function listSubscribersForAdmin(
     console.error('[listSubscribersForAdmin]', error);
     return {
       subscribers: [],
-      stats: { totalActive: 0, totalInactive: 0, total: 0, blockedCount: 0 },
+      stats: { totalActive: 0, totalInactive: 0, total: 0, blockedCount: 0, templateCount: 0 },
       pagination: {
         total: 0,
         page,
@@ -203,5 +235,98 @@ export async function listSubscribersForAdmin(
         hasPrev: false,
       },
     };
+  }
+}
+
+export async function listTemplatesForAdmin(
+  params: ListTemplatesParams = {}
+): Promise<ListTemplatesResult> {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 10));
+
+  try {
+    await connectDB();
+
+    const filter: Record<string, unknown> = {};
+    if (params.search?.trim()) {
+      const term = escapeRegex(params.search.trim());
+      filter.$or = [
+        { subject: { $regex: term, $options: 'i' } },
+        { content: { $regex: term, $options: 'i' } },
+      ];
+    }
+
+    const sortField =
+      params.sortBy && ['subject', 'recipientCount', 'sentAt', 'createdAt'].includes(params.sortBy)
+        ? params.sortBy
+        : 'sentAt';
+    const sortOrder = params.orderBy === 'asc' ? 1 : -1;
+
+    const [rows, total] = await Promise.all([
+      NewsletterTemplate.find(filter)
+        .sort({ [sortField]: sortOrder, _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      NewsletterTemplate.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    const templates: NewsletterTemplateItem[] = rows.map((row) => ({
+      _id: String(row._id),
+      subject: row.subject,
+      content: row.content,
+      html: row.html,
+      recipientCount: row.recipientCount || 0,
+      sentAt: row.sentAt
+        ? new Date(row.sentAt).toISOString()
+        : new Date(row.createdAt).toISOString(),
+      createdAt: new Date(row.createdAt).toISOString(),
+      updatedAt: new Date(row.updatedAt).toISOString(),
+    }));
+
+    return {
+      templates,
+      total,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  } catch (error) {
+    console.error('[listTemplatesForAdmin]', error);
+    return {
+      templates: [],
+      total: 0,
+      pagination: {
+        total: 0,
+        page,
+        limit,
+        totalPages: 1,
+        hasNext: false,
+        hasPrev: false,
+      },
+    };
+  }
+}
+
+export async function deleteTemplateForAdmin(
+  id: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    await connectDB();
+    const deleted = await NewsletterTemplate.findByIdAndDelete(id);
+    if (!deleted) {
+      return { success: false, message: 'Template not found.' };
+    }
+    return { success: true, message: 'Template deleted successfully.' };
+  } catch (error) {
+    console.error('[deleteTemplateForAdmin]', error);
+    return { success: false, message: 'Failed to delete template.' };
   }
 }

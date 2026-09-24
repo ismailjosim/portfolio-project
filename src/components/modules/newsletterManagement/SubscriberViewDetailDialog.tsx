@@ -1,6 +1,15 @@
 'use client';
 
-import { Mail, Calendar, Shield, User, ExternalLink, ShieldAlert, CheckCircle2, XCircle } from 'lucide-react';
+import {
+  Mail,
+  Calendar,
+  Shield,
+  User,
+  ExternalLink,
+  ShieldAlert,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 import { Subscriber } from '@/src/types/newsletter.interface';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { Badge } from '../../ui/badge';
@@ -55,7 +64,10 @@ export function SubscriberViewDetailDialog({
               {(subscriber.name?.trim() ? subscriber.name[0] : subscriber.email[0])?.toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-foreground font-mono truncate" title={subscriber.email}>
+              <h2
+                className="text-lg font-bold text-foreground font-mono truncate"
+                title={subscriber.email}
+              >
                 {subscriber.email}
               </h2>
               <p className="text-sm text-muted-foreground truncate mb-2">
@@ -63,22 +75,34 @@ export function SubscriberViewDetailDialog({
               </p>
               <div className="flex items-center gap-2">
                 {isBlocked ? (
-                  <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-xs"
+                  >
                     <Shield className="size-3 mr-1" />
                     Blocked
                   </Badge>
                 ) : subscriber.status === 'pending' ? (
-                  <Badge variant="outline" className="bg-sky-500/10 text-sky-500 border-sky-500/20 text-xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-sky-500/10 text-sky-500 border-sky-500/20 text-xs"
+                  >
                     <span className="size-1.5 rounded-full bg-sky-500 mr-1.5 animate-pulse" />
                     Pending Verification
                   </Badge>
                 ) : subscriber.isActive ? (
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs"
+                  >
                     <CheckCircle2 className="size-3 mr-1" />
                     Active Subscriber
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-rose-500/10 text-rose-500 border-rose-500/20 text-xs">
+                  <Badge
+                    variant="outline"
+                    className="bg-rose-500/10 text-rose-500 border-rose-500/20 text-xs"
+                  >
                     <XCircle className="size-3 mr-1" />
                     Unsubscribed
                   </Badge>
@@ -120,13 +144,20 @@ export function SubscriberViewDetailDialog({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/40 p-4 rounded-lg border border-border/50">
               <div className="flex items-start gap-3">
                 <Calendar className="size-4 mt-1 text-muted-foreground shrink-0" />
-                <InfoRow label="Subscribed At" value={formatDate(subscriber.subscribedAt || subscriber.createdAt)} />
+                <InfoRow
+                  label="Subscribed At"
+                  value={formatDate(subscriber.subscribedAt || subscriber.createdAt)}
+                />
               </div>
               <div className="flex items-start gap-3">
                 <Calendar className="size-4 mt-1 text-muted-foreground shrink-0" />
                 <InfoRow
                   label="Unsubscribed At"
-                  value={subscriber.unsubscribedAt ? formatDate(subscriber.unsubscribedAt) : 'Never (Still subscribed)'}
+                  value={
+                    subscriber.unsubscribedAt
+                      ? formatDate(subscriber.unsubscribedAt)
+                      : 'Never (Still subscribed)'
+                  }
                 />
               </div>
               <div className="flex items-start gap-3">
@@ -150,11 +181,17 @@ export function SubscriberViewDetailDialog({
                     This email is blacklisted from receiving newsletters and subscribing.
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Reason: <span className="font-medium text-foreground">{subscriber.blockReason || 'Blocked by admin'}</span>
+                    Reason:{' '}
+                    <span className="font-medium text-foreground">
+                      {subscriber.blockReason || 'Blocked by admin'}
+                    </span>
                   </p>
                   {subscriber.blockedAt && (
                     <p className="text-xs text-muted-foreground">
-                      Blocked on: <span className="font-medium text-foreground">{formatDate(subscriber.blockedAt)}</span>
+                      Blocked on:{' '}
+                      <span className="font-medium text-foreground">
+                        {formatDate(subscriber.blockedAt)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -177,30 +214,28 @@ export function SubscriberViewDetailDialog({
           </Button>
 
           <div className="flex items-center gap-2">
-            {isBlocked ? (
-              onInitiateUnblock && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onInitiateUnblock(subscriber.email)}
-                  className="text-emerald-600 hover:text-emerald-700 text-xs"
-                >
-                  Unblock
-                </Button>
-              )
-            ) : (
-              onInitiateBlock && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onInitiateBlock(subscriber.email)}
-                  className="text-amber-600 hover:text-amber-700 text-xs"
-                >
-                  <Shield className="size-3 mr-1" />
-                  Block
-                </Button>
-              )
-            )}
+            {isBlocked
+              ? onInitiateUnblock && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onInitiateUnblock(subscriber.email)}
+                    className="text-emerald-600 hover:text-emerald-700 text-xs"
+                  >
+                    Unblock
+                  </Button>
+                )
+              : onInitiateBlock && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onInitiateBlock(subscriber.email)}
+                    className="text-amber-600 hover:text-amber-700 text-xs"
+                  >
+                    <Shield className="size-3 mr-1" />
+                    Block
+                  </Button>
+                )}
             <Button size="sm" onClick={onClose} className="text-xs">
               Close
             </Button>

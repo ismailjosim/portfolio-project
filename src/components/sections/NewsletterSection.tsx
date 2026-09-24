@@ -120,8 +120,8 @@ export default function NewsletterSection() {
                     </h3>
                     <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
                       I just sent a confirmation email to{' '}
-                      <strong className="text-foreground font-mono">{submittedEmail}</strong>. Click the
-                      link in the email to complete your subscription.
+                      <strong className="text-foreground font-mono">{submittedEmail}</strong>. Click
+                      the link in the email to complete your subscription.
                     </p>
                     <div className="rounded-lg bg-muted/60 border border-border/70 p-3 text-xs text-muted-foreground max-w-sm">
                       No email? Check your spam folder and add{' '}

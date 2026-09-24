@@ -93,16 +93,18 @@ const SkillViewDetailDialog = ({ open, onClose, skill }: ISkillViewDialogProps) 
                       <div className="flex items-center gap-2 mt-0.5">
                         <SkillIcon icon={skill.icon} size={18} className="shrink-0" />
                         <span className="text-sm font-medium">
-                          {skill.icon.startsWith('http') || skill.icon.startsWith('/') || skill.icon.startsWith('data:')
+                          {skill.icon.startsWith('http') ||
+                          skill.icon.startsWith('/') ||
+                          skill.icon.startsWith('data:')
                             ? 'Custom Uploaded Icon'
                             : skill.icon.startsWith('devicon-')
-                            ? skill.icon
-                                .replace('devicon-', '')
-                                .replace('-plain', '')
-                                .replace('-original', '')
-                                .replace('colored', '')
-                                .trim()
-                            : skill.icon}
+                              ? skill.icon
+                                  .replace('devicon-', '')
+                                  .replace('-plain', '')
+                                  .replace('-original', '')
+                                  .replace('colored', '')
+                                  .trim()
+                              : skill.icon}
                         </span>
                       </div>
                     </div>

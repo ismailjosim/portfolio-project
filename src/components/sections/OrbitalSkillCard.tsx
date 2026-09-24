@@ -144,7 +144,9 @@ export const OrbitalSkillCard: React.FC<OrbitalSkillCardProps> = ({
             if (activeSkill) setActiveSkill(null);
           }}
           className={`relative z-20 flex flex-col items-center justify-center w-22 h-22 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:${theme.centerBorder} shadow-md dark:${theme.centerGlow} p-2 text-center transition-all duration-300 ${
-            activeSkill ? 'cursor-pointer ring-2 ring-primary/40 scale-105' : 'group-hover:scale-105'
+            activeSkill
+              ? 'cursor-pointer ring-2 ring-primary/40 scale-105'
+              : 'group-hover:scale-105'
           }`}
         >
           {currentSkill ? (

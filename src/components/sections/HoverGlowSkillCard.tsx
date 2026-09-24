@@ -122,9 +122,7 @@ export const HoverGlowSkillCard: React.FC<HoverGlowSkillCardProps> = ({
               {/* Floating Tooltip Badge */}
               <div
                 className={`absolute -top-8 left-1/2 -translate-x-1/2 transition-all duration-200 pointer-events-none z-40 px-2.5 py-1 rounded-md bg-slate-950 text-white text-[11px] font-semibold tracking-wide whitespace-nowrap shadow-xl border border-white/20 ${
-                  isSelected
-                    ? 'opacity-100 scale-100'
-                    : 'opacity-0 group-hover/tile:opacity-100'
+                  isSelected ? 'opacity-100 scale-100' : 'opacity-0 group-hover/tile:opacity-100'
                 }`}
               >
                 {skill.name}

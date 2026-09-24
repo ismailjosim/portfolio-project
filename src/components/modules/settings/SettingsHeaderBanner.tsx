@@ -3,7 +3,11 @@
 import React from 'react';
 import { Button } from '@/src/components/ui/button';
 import { Sliders, CheckCircle2, Sparkles, Globe, RotateCcw, Loader2 } from 'lucide-react';
-import type { PaletteConfig, FontConfig, GlobalThemeSettings } from '@/src/providers/custom-theme-provider';
+import type {
+  PaletteConfig,
+  FontConfig,
+  GlobalThemeSettings,
+} from '@/src/providers/custom-theme-provider';
 
 interface SettingsHeaderBannerProps {
   isFullySynced: boolean;
@@ -47,8 +51,8 @@ export const SettingsHeaderBanner: React.FC<SettingsHeaderBannerProps> = ({
           <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
             Customize your portfolio’s visual brand, color palette, and body typography in real
             time. Changes preview instantly here — click{' '}
-            <span className="font-semibold text-foreground">Apply Globally</span> to publish them
-            to every visitor.
+            <span className="font-semibold text-foreground">Apply Globally</span> to publish them to
+            every visitor.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">

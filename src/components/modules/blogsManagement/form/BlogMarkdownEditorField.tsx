@@ -52,12 +52,7 @@ export const BlogMarkdownEditorField: React.FC<BlogMarkdownEditorFieldProps> = (
         rules={{ required: 'Content is required' }}
         render={({ field }) => (
           <div data-color-mode={theme === 'dark' ? 'dark' : 'light'} className="rounded-md border">
-            <MDEditor
-              value={field.value}
-              onChange={field.onChange}
-              height={360}
-              preview="edit"
-            />
+            <MDEditor value={field.value} onChange={field.onChange} height={360} preview="edit" />
           </div>
         )}
       />

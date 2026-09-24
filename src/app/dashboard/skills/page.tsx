@@ -9,7 +9,8 @@ import { getAllSkills } from '@/src/services/skill-management';
 
 export const metadata: Metadata = {
   title: 'Skills Management',
-  description: 'Manage technical competencies, categories, proficiency rankings, and icon mappings.',
+  description:
+    'Manage technical competencies, categories, proficiency rankings, and icon mappings.',
 };
 
 const SkillsPage = async ({

@@ -1,4 +1,3 @@
-
 import type { NextConfig } from 'next';
 
 const cspHeader = `
@@ -68,4 +67,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-

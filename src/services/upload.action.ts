@@ -16,13 +16,10 @@ export async function uploadImage(formData: FormData, customFolder: string = 'bl
 
     const result = await new Promise<{ secure_url: string; public_id: string }>(
       (resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder },
-          (error, result) => {
-            if (error || !result) reject(error);
-            else resolve(result as any);
-          }
-        );
+        const stream = cloudinary.uploader.upload_stream({ folder }, (error, result) => {
+          if (error || !result) reject(error);
+          else resolve(result as any);
+        });
         stream.end(buffer);
       }
     );

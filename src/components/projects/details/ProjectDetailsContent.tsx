@@ -40,10 +40,7 @@ export const ProjectDetailsContent: React.FC<ProjectDetailsContentProps> = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             {features.map((feature) => (
-              <div
-                key={feature}
-                className="flex gap-3 rounded-lg border border-border bg-card p-4"
-              >
+              <div key={feature} className="flex gap-3 rounded-lg border border-border bg-card p-4">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
                   <CheckCircle2 className="h-4 w-4" />
                 </span>

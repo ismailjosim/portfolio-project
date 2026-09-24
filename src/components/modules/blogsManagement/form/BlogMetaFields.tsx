@@ -4,13 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { UseFormReturn, Controller } from 'react-hook-form';
 import CreatableSelect from 'react-select/creatable';
 import { Input } from '@/src/components/ui/input';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/src/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import {
   Select as SelectElement,
   SelectContent,
@@ -117,7 +111,8 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
         rules={{
           pattern: {
             value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-            message: 'Slug must use lowercase letters, numbers, and hyphens only (e.g. my-blog-post)',
+            message:
+              'Slug must use lowercase letters, numbers, and hyphens only (e.g. my-blog-post)',
           },
         }}
         render={({ field }) => (
@@ -185,8 +180,7 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
                     `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
                       isFocused ? 'border-blue-500' : 'border-input hover:border-blue-500'
                     }`,
-                  menu: () =>
-                    'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
+                  menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
                   menuList: () => 'py-1',
                   option: ({ isFocused, isSelected }) =>
                     `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
@@ -313,8 +307,7 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
                         ? 'border-blue-500'
                         : 'border-input hover:border-blue-500'
                   }`,
-                menu: () =>
-                  'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
+                menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
                 menuList: () => 'py-1',
                 option: ({ isFocused, isSelected, isDisabled }) =>
                   `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
@@ -341,7 +334,9 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
                 dropdownIndicator: ({ isFocused }) =>
                   `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
               }}
-              placeholder={tagLimitReached ? `Limit reached (${MAX_TAGS} max)` : 'Select or create tags'}
+              placeholder={
+                tagLimitReached ? `Limit reached (${MAX_TAGS} max)` : 'Select or create tags'
+              }
             />
           )}
         />
