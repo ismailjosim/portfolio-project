@@ -1,56 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IBlog } from '@/src/types/blog.interface';
-import { BlogGridSkeleton } from '../shared/PublicDataSkeletons';
 
 interface RelatedBlogsProps {
-  currentBlogId: string;
-  category: string;
+  relatedBlogs: IBlog[];
 }
 
-export default function RelatedBlogs({ currentBlogId, category }: RelatedBlogsProps) {
-  const [relatedBlogs, setRelatedBlogs] = useState<IBlog[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRelatedBlogs = async () => {
-      try {
-        const response = await fetch(`/api/blogs?category=${encodeURIComponent(category)}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch related blogs');
-        }
-
-        const data = await response.json();
-        const blogs = (data.blogs || [])
-          .filter((blog: IBlog) => blog._id !== currentBlogId && blog.status === 'published')
-          .slice(0, 3);
-
-        setRelatedBlogs(blogs);
-      } catch (error) {
-        console.error('Failed to fetch related blogs:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRelatedBlogs();
-  }, [currentBlogId, category]);
-
-  if (loading) {
-    return (
-      <section className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8">Related Articles</h2>
-        <BlogGridSkeleton count={3} />
-      </section>
-    );
-  }
-
-  if (relatedBlogs.length === 0) {
+export default function RelatedBlogs({ relatedBlogs = [] }: RelatedBlogsProps) {
+  if (!relatedBlogs || relatedBlogs.length === 0) {
     return null;
   }
 

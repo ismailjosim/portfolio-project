@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UseFormReturn, Controller } from 'react-hook-form';
 import CreatableSelect from 'react-select/creatable';
+import Select from 'react-select';
 import { Input } from '@/src/components/ui/input';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import {
@@ -12,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
-import { BlogStatus, IBlogTag } from '@/src/types/blog.interface';
+import { BlogStatus, IBlogTag, IBlog } from '@/src/types/blog.interface';
 import { blogCategories, blogTags as TAG_OPTIONS_ARRAY } from '@/src/constants/blogTaxonomy';
-import { AlertCircle } from 'lucide-react';
+import { getPublishedBlogs } from '@/src/services/blog-management';
 
 export const BLOG_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
@@ -55,18 +56,45 @@ export interface BlogFormValues {
   status: BlogStatus;
   summary?: string;
   scheduledPublishDate?: string;
+  related: { value: string; label: string }[];
 }
 
 interface BlogMetaFieldsProps {
   form: UseFormReturn<BlogFormValues>;
   status: string;
   isEdit?: boolean;
+  children?: React.ReactNode;
 }
 
-export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, isEdit }) => {
+export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({
+  form,
+  status,
+  isEdit,
+  children,
+}) => {
   // Track whether the slug is still being auto-generated from title
   const autoSlugRef = useRef(true);
   const titleValue = form.watch('title');
+
+  const [relatedOptions, setRelatedOptions] = useState<{ value: string; label: string }[]>([]);
+
+  useEffect(() => {
+    async function fetchBlogs() {
+      const res = await getPublishedBlogs({ limit: 100 });
+      if (res.success && res.data) {
+        setRelatedOptions(
+          res.data
+            // Don't show current blog in related options
+            .filter((b: IBlog) => b.slug !== form.getValues('slug'))
+            .map((b: IBlog) => ({
+              value: b._id as string,
+              label: b.title,
+            }))
+        );
+      }
+    }
+    fetchBlogs();
+  }, [form]);
 
   useEffect(() => {
     if (!isEdit && autoSlugRef.current && titleValue) {
@@ -88,58 +116,61 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
 
   return (
     <>
-      {/* Title */}
-      <FormField
-        control={form.control}
-        name="title"
-        rules={{ required: 'Title is required' }}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Title</FormLabel>
-            <FormControl>
-              <Input placeholder="My awesome blog post" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {/* Title and Slug */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        {/* Title */}
+        <FormField
+          control={form.control}
+          name="title"
+          rules={{ required: 'Title is required' }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input placeholder="My awesome blog post" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {/* Slug */}
-      <FormField
-        control={form.control}
-        name="slug"
-        rules={{
-          pattern: {
-            value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-            message:
-              'Slug must use lowercase letters, numbers, and hyphens only (e.g. my-blog-post)',
-          },
-        }}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              Slug{' '}
-              <span className="text-xs text-muted-foreground font-normal">
-                (auto-generated from title, or edit manually)
-              </span>
-            </FormLabel>
-            <FormControl>
-              <Input
-                placeholder="my-blog-post"
-                {...field}
-                onChange={handleSlugChange}
-                className="font-mono text-sm"
-              />
-            </FormControl>
-            <FormMessage />
-            {field.value && (
-              <p className="text-xs text-muted-foreground">
-                URL: <span className="text-foreground">/blogs/{field.value}</span>
-              </p>
-            )}
-          </FormItem>
-        )}
-      />
+        {/* Slug */}
+        <FormField
+          control={form.control}
+          name="slug"
+          rules={{
+            pattern: {
+              value: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+              message:
+                'Slug must use lowercase letters, numbers, and hyphens only (e.g. my-blog-post)',
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Slug{' '}
+                <span className="text-xs text-muted-foreground font-normal">
+                  (auto-generated or edit)
+                </span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="my-blog-post"
+                  {...field}
+                  onChange={handleSlugChange}
+                  className="font-mono text-sm"
+                />
+              </FormControl>
+              <FormMessage />
+              {field.value && (
+                <p className="text-xs text-muted-foreground">
+                  URL: <span className="text-foreground">/blogs/{field.value}</span>
+                </p>
+              )}
+            </FormItem>
+          )}
+        />
+      </div>
 
       {/* Summary */}
       <FormField
@@ -159,7 +190,7 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
         )}
       />
 
-      {/* Category + Status + Scheduled Date */}
+      {/* Category + Tags + Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
         {/* Category */}
         <FormItem className="w-full">
@@ -199,7 +230,7 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
                   dropdownIndicator: ({ isFocused }) =>
                     `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
                 }}
-                placeholder="Select or create category"
+                placeholder="Select or create"
               />
             )}
           />
@@ -208,6 +239,75 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
               {form.formState.errors.category.message}
             </p>
           )}
+        </FormItem>
+
+        {/* Tags */}
+        <FormItem>
+          <div className="flex items-center justify-between mb-1">
+            <FormLabel>Tags</FormLabel>
+            <span
+              className={`text-[10px] font-medium tabular-nums transition-colors ${
+                tagLimitReached ? 'text-destructive' : 'text-muted-foreground'
+              }`}
+            >
+              {tagCount} / {MAX_TAGS}
+            </span>
+          </div>
+
+          <Controller
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <CreatableSelect
+                isMulti
+                unstyled
+                options={TAG_OPTIONS}
+                value={field.value}
+                onChange={(tags) => field.onChange(tags || [])}
+                isOptionDisabled={() => tagLimitReached}
+                noOptionsMessage={({ inputValue }) =>
+                  tagLimitReached ? `Limit reached` : inputValue ? 'Type to create' : 'No options'
+                }
+                classNames={{
+                  control: ({ isFocused }) =>
+                    `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
+                      tagLimitReached
+                        ? 'border-destructive/50'
+                        : isFocused
+                          ? 'border-blue-500'
+                          : 'border-input hover:border-blue-500'
+                    }`,
+                  menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
+                  menuList: () => 'py-1',
+                  option: ({ isFocused, isSelected, isDisabled }) =>
+                    `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
+                      isDisabled
+                        ? 'opacity-40 cursor-not-allowed'
+                        : isSelected
+                          ? 'bg-blue-600 text-white'
+                          : isFocused
+                            ? 'bg-accent text-accent-foreground'
+                            : 'bg-transparent'
+                    }`,
+                  multiValue: () =>
+                    'inline-flex items-center gap-1 bg-primary/10 border border-primary/30 rounded-sm mx-1 px-1 py-0.5',
+                  multiValueLabel: () => 'text-foreground text-xs font-medium leading-none',
+                  multiValueRemove: ({ isFocused }) =>
+                    `ml-0.5 rounded transition-all duration-150 text-muted-foreground hover:bg-destructive hover:text-white ${
+                      isFocused ? 'bg-destructive text-white' : ''
+                    }`,
+                  placeholder: () => 'text-muted-foreground text-sm',
+                  input: () => 'text-secondary-foreground text-sm',
+                  indicatorsContainer: () => 'text-muted-foreground',
+                  clearIndicator: ({ isFocused }) =>
+                    `p-1 rounded transition-colors ${isFocused ? 'text-foreground' : ''}`,
+                  dropdownIndicator: ({ isFocused }) =>
+                    `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
+                }}
+                placeholder={tagLimitReached ? `Limit (${MAX_TAGS})` : 'Select tags'}
+              />
+            )}
+          />
         </FormItem>
 
         {/* Status */}
@@ -236,111 +336,103 @@ export const BlogMetaFields: React.FC<BlogMetaFieldsProps> = ({ form, status, is
             </FormItem>
           )}
         />
-
-        {/* Scheduled Date */}
-        {status === 'scheduled' ? (
-          <FormField
-            control={form.control}
-            name="scheduledPublishDate"
-            rules={{
-              required: status === 'scheduled' ? 'Schedule date is required' : false,
-            }}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Publish Date</FormLabel>
-                <FormControl>
-                  <Input type="datetime-local" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ) : (
-          <div />
-        )}
       </div>
 
-      {/* Tags */}
-      <FormItem>
-        <div className="flex items-center justify-between mb-1">
-          <FormLabel>Tags</FormLabel>
-          <span
-            className={`text-xs font-medium tabular-nums transition-colors ${
-              tagLimitReached ? 'text-destructive' : 'text-muted-foreground'
-            }`}
-          >
-            {tagCount} / {MAX_TAGS}
-          </span>
-        </div>
-
-        {tagLimitReached && (
-          <div className="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive mb-2">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>Maximum {MAX_TAGS} tags allowed. Remove a tag to add another.</span>
-          </div>
-        )}
-
-        <Controller
+      {/* Scheduled Date (Rendered separately below if status is scheduled) */}
+      {status === 'scheduled' && (
+        <FormField
           control={form.control}
-          name="tags"
+          name="scheduledPublishDate"
+          rules={{
+            required: status === 'scheduled' ? 'Schedule date is required' : false,
+          }}
           render={({ field }) => (
-            <CreatableSelect
-              isMulti
-              unstyled
-              options={TAG_OPTIONS}
-              value={field.value}
-              onChange={(tags) => field.onChange(tags || [])}
-              isOptionDisabled={() => tagLimitReached}
-              noOptionsMessage={({ inputValue }) =>
-                tagLimitReached
-                  ? `Tag limit reached (${MAX_TAGS} max)`
-                  : inputValue
-                    ? 'No options — type to create'
-                    : 'No options'
-              }
-              classNames={{
-                control: ({ isFocused }) =>
-                  `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
-                    tagLimitReached
-                      ? 'border-destructive/50'
-                      : isFocused
-                        ? 'border-blue-500'
-                        : 'border-input hover:border-blue-500'
-                  }`,
-                menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
-                menuList: () => 'py-1',
-                option: ({ isFocused, isSelected, isDisabled }) =>
-                  `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
-                    isDisabled
-                      ? 'opacity-40 cursor-not-allowed'
-                      : isSelected
-                        ? 'bg-blue-600 text-white'
-                        : isFocused
-                          ? 'bg-accent text-accent-foreground'
-                          : 'bg-transparent'
-                  }`,
-                multiValue: () =>
-                  'inline-flex items-center gap-1 bg-primary/10 border border-primary/30 rounded-sm mx-1 px-2 py-0.5',
-                multiValueLabel: () => 'text-foreground text-sm font-medium leading-none',
-                multiValueRemove: ({ isFocused }) =>
-                  `ml-0.5 rounded transition-all duration-150 text-muted-foreground hover:bg-destructive hover:text-white ${
-                    isFocused ? 'bg-destructive text-white' : ''
-                  }`,
-                placeholder: () => 'text-muted-foreground',
-                input: () => 'text-secondary-foreground',
-                indicatorsContainer: () => 'text-muted-foreground',
-                clearIndicator: ({ isFocused }) =>
-                  `p-1 rounded transition-colors ${isFocused ? 'text-foreground' : ''}`,
-                dropdownIndicator: ({ isFocused }) =>
-                  `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
-              }}
-              placeholder={
-                tagLimitReached ? `Limit reached (${MAX_TAGS} max)` : 'Select or create tags'
-              }
-            />
+            <FormItem>
+              <FormLabel>Publish Date</FormLabel>
+              <FormControl>
+                <Input type="datetime-local" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
-      </FormItem>
+      )}
+
+      {/* Related Articles & Cover Image */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        {/* Related Articles */}
+        <FormItem>
+          <div className="flex items-center justify-between mb-1">
+            <FormLabel>Related Articles</FormLabel>
+            <span
+              className={`text-[10px] font-medium tabular-nums transition-colors ${
+                (form.watch('related')?.length ?? 0) >= 3
+                  ? 'text-destructive'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              {form.watch('related')?.length ?? 0} / 3
+            </span>
+          </div>
+
+          <Controller
+            control={form.control}
+            name="related"
+            render={({ field }) => (
+              <Select
+                isMulti
+                unstyled
+                options={relatedOptions}
+                value={field.value}
+                onChange={(items) => field.onChange(items || [])}
+                isOptionDisabled={() => (field.value?.length ?? 0) >= 3}
+                classNames={{
+                  control: ({ isFocused }) =>
+                    `rounded-lg border px-2 py-1 bg-secondary transition-colors ${
+                      (field.value?.length ?? 0) >= 3
+                        ? 'border-destructive/50'
+                        : isFocused
+                          ? 'border-blue-500'
+                          : 'border-input hover:border-blue-500'
+                    }`,
+                  menu: () => 'mt-1 rounded-lg border border-secondary bg-secondary shadow-lg z-50',
+                  menuList: () => 'py-1',
+                  option: ({ isFocused, isSelected, isDisabled }) =>
+                    `px-3 py-2 cursor-pointer text-secondary-foreground transition-colors ${
+                      isDisabled
+                        ? 'opacity-40 cursor-not-allowed'
+                        : isSelected
+                          ? 'bg-blue-600 text-white'
+                          : isFocused
+                            ? 'bg-accent text-accent-foreground'
+                            : 'bg-transparent'
+                    }`,
+                  multiValue: () =>
+                    'inline-flex items-center gap-1 bg-primary/10 border border-primary/30 rounded-sm mx-1 px-1 py-0.5',
+                  multiValueLabel: () => 'text-foreground text-xs font-medium leading-none',
+                  multiValueRemove: ({ isFocused }) =>
+                    `ml-0.5 rounded transition-all duration-150 text-muted-foreground hover:bg-destructive hover:text-white ${
+                      isFocused ? 'bg-destructive text-white' : ''
+                    }`,
+                  placeholder: () => 'text-muted-foreground text-sm',
+                  input: () => 'text-secondary-foreground text-sm',
+                  indicatorsContainer: () => 'text-muted-foreground',
+                  clearIndicator: ({ isFocused }) =>
+                    `p-1 rounded transition-colors ${isFocused ? 'text-foreground' : ''}`,
+                  dropdownIndicator: ({ isFocused }) =>
+                    `p-1 transition-colors ${isFocused ? 'text-foreground' : ''}`,
+                }}
+                placeholder={
+                  (field.value?.length ?? 0) >= 3 ? 'Limit (3 max)' : 'Select related articles'
+                }
+              />
+            )}
+          />
+        </FormItem>
+
+        {/* Cover Image field passed as children */}
+        {children && <div className="mt-0">{children}</div>}
+      </div>
     </>
   );
 };

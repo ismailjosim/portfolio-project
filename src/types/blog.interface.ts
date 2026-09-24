@@ -24,4 +24,6 @@ export interface IBlog {
   views: number;
   likesCount: number;
   commentsCount: number;
+
+  related?: IBlog[] | string[];
 }

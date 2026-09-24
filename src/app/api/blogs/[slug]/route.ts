@@ -27,7 +27,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     // Case-insensitive slug search
     const blog = await Blog.findOne({
       slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    }).populate('related', 'title slug category coverImage views likesCount');
     // console.log({ blog })
 
     if (!blog) {

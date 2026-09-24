@@ -51,6 +51,7 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
       status: 'draft',
       summary: '',
       scheduledPublishDate: '',
+      related: [],
     },
   });
 
@@ -71,6 +72,9 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
         scheduledPublishDate: blog.scheduledPublishDate
           ? new Date(blog.scheduledPublishDate).toISOString().slice(0, 16)
           : '',
+        related: (blog.related || []).map((r: IBlog | string) =>
+          typeof r === 'string' ? { value: r, label: r } : { value: r._id as string, label: r.title }
+        ),
       });
     } else {
       form.reset({
@@ -84,6 +88,7 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
         status: 'draft',
         summary: '',
         scheduledPublishDate: '',
+        related: [],
       });
     }
   }, [blog, form]);
@@ -159,6 +164,7 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
           data.status === 'scheduled' && data.scheduledPublishDate
             ? new Date(data.scheduledPublishDate)
             : undefined,
+        related: data.related?.map((item) => item.value) || [],
       };
 
       let result;
@@ -206,17 +212,18 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
             className="flex flex-col flex-1 min-h-0"
           >
             <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-4">
-              <BlogMetaFields form={form} status={status} isEdit={isEdit} />
-              <BlogCoverImageField
-                coverPreview={coverPreview}
-                coverInputRef={coverInputRef}
-                onCoverUpload={handleCoverUpload}
-                onRemoveCover={() => {
-                  coverFileRef.current = null;
-                  form.setValue('coverImagePreview', '');
-                  form.setValue('coverImage', null);
-                }}
-              />
+              <BlogMetaFields form={form} status={status} isEdit={isEdit}>
+                <BlogCoverImageField
+                  coverPreview={coverPreview}
+                  coverInputRef={coverInputRef}
+                  onCoverUpload={handleCoverUpload}
+                  onRemoveCover={() => {
+                    coverFileRef.current = null;
+                    form.setValue('coverImagePreview', '');
+                    form.setValue('coverImage', null);
+                  }}
+                />
+              </BlogMetaFields>
               <BlogMarkdownEditorField
                 form={form}
                 theme={theme}

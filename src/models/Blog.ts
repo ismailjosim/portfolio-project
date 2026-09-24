@@ -17,6 +17,7 @@ export interface IBlog extends Document {
   publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  related?: string[];
 }
 
 const BlogSchema = new Schema<IBlog>(
@@ -86,6 +87,12 @@ const BlogSchema = new Schema<IBlog>(
       default: 0,
       min: [0, 'Comments count cannot be negative'],
     },
+    related: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Blog',
+      },
+    ],
   },
   { timestamps: true }
 );

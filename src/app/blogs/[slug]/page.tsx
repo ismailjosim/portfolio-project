@@ -21,6 +21,7 @@ import BlogShareBar from '@/src/components/blog/BlogShareBar';
 import { calculateReadingTime } from '@/src/lib/reading-time';
 import { siteConfig } from '@/src/constants/site-config';
 import { BreadcrumbJsonLd, BlogPostingJsonLd } from '@/src/components/seo/JsonLd';
+import { IBlog } from '@/src/types/blog.interface';
 
 import { formatDateTime } from '@/src/lib/formatters.ts';
 import { getSingleBlogBySlug } from '@/src/services/blog-management';
@@ -288,7 +289,7 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
 
         {/* Related Blogs */}
         <div className="mt-20">
-          <RelatedBlogs currentBlogId={blog._id!} category={blog.category} />
+          <RelatedBlogs relatedBlogs={blog.related as IBlog[]} />
         </div>
       </main>
     </>

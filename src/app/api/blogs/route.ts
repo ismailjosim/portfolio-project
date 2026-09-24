@@ -69,6 +69,7 @@ export async function GET(req: Request) {
         .sort(sort)
         .skip((page - 1) * limit)
         .limit(limit)
+        .populate('related', 'title slug')
         .lean(),
 
       Blog.countDocuments(filter),

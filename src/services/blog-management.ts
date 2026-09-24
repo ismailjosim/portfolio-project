@@ -11,6 +11,7 @@ export interface IBlogPayload {
   summary?: string;
   slug?: string;
   scheduledPublishDate?: string | Date;
+  related?: string[];
 }
 
 type GetBlogsParams = {
