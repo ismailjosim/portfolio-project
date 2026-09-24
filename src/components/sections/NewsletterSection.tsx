@@ -19,6 +19,7 @@ export default function NewsletterSection() {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +44,9 @@ export default function NewsletterSection() {
         return;
       }
 
-      toast.success(data.message || "You're subscribed! 🎉");
+      const userEmail = email.trim();
+      setSubmittedEmail(userEmail);
+      toast.success(data.message || 'Please check your inbox to confirm your subscription!');
       setSubscribed(true);
       setEmail('');
       setName('');
@@ -108,19 +111,34 @@ export default function NewsletterSection() {
               {/* Right: Form */}
               <div>
                 {subscribed ? (
-                  <div className="flex flex-col items-center justify-center gap-4 py-8 text-center">
-                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-accent/15 text-accent">
-                      <CheckCircle2 className="w-8 h-8" />
+                  <div className="flex flex-col items-center justify-center gap-4 py-6 text-center">
+                    <div className="flex items-center justify-center size-14 rounded-full bg-accent/15 text-accent border border-accent/20">
+                      <Mail className="size-7" />
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">You&apos;re in! 🎉</h3>
-                    <p className="text-muted-foreground text-sm max-w-xs">
-                      Thanks for subscribing! Look out for your first weekly digest soon.
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                      Please confirm your email address
+                    </h3>
+                    <p className="text-muted-foreground text-sm max-w-sm leading-relaxed">
+                      I just sent a confirmation email to{' '}
+                      <strong className="text-foreground font-mono">{submittedEmail}</strong>. Click the
+                      link in the email to complete your subscription.
                     </p>
+                    <div className="rounded-lg bg-muted/60 border border-border/70 p-3 text-xs text-muted-foreground max-w-sm">
+                      No email? Check your spam folder and add{' '}
+                      <span className="text-foreground font-medium">
+                        newsletter@contact.ismailjosim.com
+                      </span>{' '}
+                      to your contacts.
+                    </div>
+                    <p className="text-sm font-medium text-foreground">Thanks! ✌️</p>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-muted-foreground hover:text-foreground"
-                      onClick={() => setSubscribed(false)}
+                      className="text-muted-foreground hover:text-foreground text-xs mt-1"
+                      onClick={() => {
+                        setSubscribed(false);
+                        setSubmittedEmail('');
+                      }}
                     >
                       Subscribe another email
                     </Button>

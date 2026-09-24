@@ -1,4 +1,7 @@
 import { serverFetch } from '../lib/server-fetch';
+import { connectDB } from '../lib/mongodb';
+import SentEmailLog from '../models/SentEmailLog';
+import NewsletterSubscriber from '../models/NewsletterSubscriber';
 
 /* =========================
    Types
@@ -26,6 +29,16 @@ export interface Skill {
   proficiency?: 'beginner' | 'intermediate' | 'advanced';
 }
 
+export interface NewsletterMetrics {
+  totalEmailsSent: number;
+  totalSubscribers: number;
+  activeSubscribers: number;
+  broadcastsSent: number;
+  verificationsSent: number;
+  welcomeSent: number;
+  contactMessagesSent: number;
+}
+
 export interface DashboardStats {
   totalBlogs: number;
   totalProjects: number;
@@ -42,6 +55,7 @@ export interface DashboardStats {
     skillsByCategory: Record<string, number>;
     proficiencyBreakdown: Record<string, number>;
   };
+  newsletterMetrics: NewsletterMetrics;
   recentBlogs: Blog[];
   projects: Project[];
   skills: Skill[];
@@ -112,6 +126,49 @@ export async function getDashboardData(): Promise<DashboardStats> {
     }
 
     /* =========================
+		   Newsletter & Email Metrics
+		========================= */
+
+    let totalEmailsSent = 0;
+    let totalSubscribers = 0;
+    let activeSubscribers = 0;
+    let broadcastsSent = 0;
+    let verificationsSent = 0;
+    let welcomeSent = 0;
+    let contactMessagesSent = 0;
+
+    try {
+      await connectDB();
+      const [
+        totalSentLogCount,
+        broadcastCount,
+        verificationCount,
+        welcomeCount,
+        contactCount,
+        totalSubs,
+        activeSubs,
+      ] = await Promise.all([
+        SentEmailLog.countDocuments({ status: 'sent' }),
+        SentEmailLog.countDocuments({ type: 'newsletter', status: 'sent' }),
+        SentEmailLog.countDocuments({ type: 'verification', status: 'sent' }),
+        SentEmailLog.countDocuments({ type: 'welcome', status: 'sent' }),
+        SentEmailLog.countDocuments({ type: 'contact', status: 'sent' }),
+        NewsletterSubscriber.countDocuments(),
+        NewsletterSubscriber.countDocuments({ isActive: true, isVerified: true }),
+      ]);
+
+      totalEmailsSent = totalSentLogCount;
+      broadcastsSent = broadcastCount;
+      verificationsSent = verificationCount;
+      welcomeSent = welcomeCount;
+      contactMessagesSent = contactCount;
+      totalSubscribers = totalSubs;
+      activeSubscribers = activeSubs;
+    } catch (dbErr) {
+      console.error('Error fetching email metrics:', dbErr);
+    }
+
+    /* =========================
 		   Sorting
 		========================= */
 
@@ -144,6 +201,16 @@ export async function getDashboardData(): Promise<DashboardStats> {
         proficiencyBreakdown,
       },
 
+      newsletterMetrics: {
+        totalEmailsSent,
+        totalSubscribers,
+        activeSubscribers,
+        broadcastsSent,
+        verificationsSent,
+        welcomeSent,
+        contactMessagesSent,
+      },
+
       recentBlogs: sortedBlogs.slice(0, 4),
       projects: projects.slice(0, 3),
       skills: skills.slice(0, 12),
@@ -168,6 +235,16 @@ export async function getDashboardData(): Promise<DashboardStats> {
         totalSkills: 0,
         skillsByCategory: {},
         proficiencyBreakdown: {},
+      },
+
+      newsletterMetrics: {
+        totalEmailsSent: 0,
+        totalSubscribers: 0,
+        activeSubscribers: 0,
+        broadcastsSent: 0,
+        verificationsSent: 0,
+        welcomeSent: 0,
+        contactMessagesSent: 0,
       },
 
       recentBlogs: [],

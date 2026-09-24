@@ -39,11 +39,23 @@ export async function POST(req: Request) {
       { upsert: true, new: true }
     );
 
-    // 2. Deactivate any active subscription for this email
-    await NewsletterSubscriber.updateOne(
-      { email: cleanEmail },
-      { isActive: false, unsubscribedAt: new Date() }
-    );
+    // 2. Deactivate any active subscription for this email or create one
+    const existingSub = await NewsletterSubscriber.findOne({ email: cleanEmail });
+    if (existingSub) {
+      existingSub.isActive = false;
+      existingSub.unsubscribedAt = new Date();
+      await existingSub.save();
+    } else {
+      const crypto = await import('crypto');
+      await NewsletterSubscriber.create({
+        email: cleanEmail,
+        name: 'Blocked User',
+        isActive: false,
+        subscribedAt: new Date(),
+        unsubscribedAt: new Date(),
+        unsubscribeToken: crypto.randomBytes(32).toString('hex'),
+      });
+    }
 
     return NextResponse.json({
       success: true,

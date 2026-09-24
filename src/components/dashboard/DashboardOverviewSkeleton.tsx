@@ -21,6 +21,7 @@ export function DashboardOverviewSkeleton() {
           <div className="flex flex-wrap items-center gap-2.5">
             <Skeleton className="h-9 w-24 rounded-lg" />
             <Skeleton className="h-9 w-28 rounded-lg" />
+            <Skeleton className="h-9 w-28 rounded-lg" />
             <Skeleton className="h-9 w-24 rounded-lg" />
             <Skeleton className="h-9 w-32 rounded-lg" />
           </div>
@@ -28,8 +29,8 @@ export function DashboardOverviewSkeleton() {
       </div>
 
       {/* ── Key KPI Bento Stats Grid Skeleton ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="grid gap-3.5 sm:gap-4 grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
+        {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
             className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm space-y-3 dark:border-slate-800/80"
@@ -116,6 +117,37 @@ export function DashboardOverviewSkeleton() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* ── Email Outreach & Newsletter Engine Row Skeleton ── */}
+      <div className="rounded-2xl border border-border/80 bg-card/60 p-6 shadow-sm space-y-6 dark:border-slate-800/80">
+        <div className="flex items-center justify-between pb-2 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <Skeleton className="size-9 rounded-xl" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-5 w-48 rounded-md" />
+              <Skeleton className="h-3.5 w-64 rounded-md" />
+            </div>
+          </div>
+          <Skeleton className="h-5 w-24 rounded-full" />
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <div key={idx} className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-2">
+              <Skeleton className="h-3.5 w-20 rounded-md" />
+              <Skeleton className="h-7 w-14 rounded-md" />
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-xl border border-border/50 bg-muted/20 p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-4 w-44 rounded-md" />
+            <Skeleton className="h-6 w-12 rounded-md" />
+          </div>
+          <Skeleton className="h-2.5 w-full rounded-full" />
         </div>
       </div>
 

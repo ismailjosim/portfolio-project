@@ -27,6 +27,7 @@ import { getSingleBlogBySlug } from '@/src/services/blog-management';
 import { Separator } from '@/src/components/ui/separator';
 
 import MarkdownPreview from '@/src/components/blog/MarkdownPreview';
+import NewsletterSubscribeBox from '@/src/components/newsletter/NewsletterSubscribeBox';
 
 interface BlogDetailsPageProps {
   params: Promise<{ slug: string }>;
@@ -261,6 +262,11 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
 
           {/* Share Article Bar */}
           <BlogShareBar title={blog.title} slug={slug} />
+
+          {/* Newsletter Subscription Box */}
+          <div className="my-10">
+            <NewsletterSubscribeBox variant="blog" />
+          </div>
 
           {/* Actions */}
           <div className="border-y py-6 mb-10 flex flex-wrap items-center gap-4">

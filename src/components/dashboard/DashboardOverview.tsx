@@ -6,6 +6,7 @@ import { BlogInsightsCard } from './BlogInsightsCard';
 import { SkillsInsightsCard } from './SkillsInsightsCard';
 import { ProjectsOverviewCard } from './ProjectsOverviewCard';
 import { RecentBlogsCard } from './RecentBlogsCard';
+import { NewsletterInsightsCard } from './NewsletterInsightsCard';
 
 import {
   BookOpen,
@@ -16,6 +17,8 @@ import {
   ExternalLink,
   Layers,
   FileCode2,
+  Mail,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
@@ -36,6 +39,15 @@ interface DashboardData {
     skillsByCategory: Record<string, number>;
     proficiencyBreakdown: Record<string, number>;
   };
+  newsletterMetrics?: {
+    totalEmailsSent: number;
+    totalSubscribers: number;
+    activeSubscribers: number;
+    broadcastsSent: number;
+    verificationsSent: number;
+    welcomeSent: number;
+    contactMessagesSent: number;
+  };
   recentBlogs: any[];
   projects: any[];
   skills: any[];
@@ -47,24 +59,37 @@ interface DashboardOverviewProps {
 
 export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
   const totalInteractions = data.blogMetrics.totalLikes + data.blogMetrics.totalComments;
+  const totalEmailsSent = data.newsletterMetrics?.totalEmailsSent ?? 0;
+  const totalSubscribers = data.newsletterMetrics?.totalSubscribers ?? 0;
+  const activeSubscribers = data.newsletterMetrics?.activeSubscribers ?? 0;
 
   return (
     <div className="space-y-6 pb-8">
       {/* ── Welcome Banner & Quick Actions ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-r from-card/90 via-primary/5 to-card/90 backdrop-blur-2xl p-6 shadow-xl dark:border-slate-800/80 dark:bg-[#0A1124]/90">
+      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-r from-card/90 via-primary/5 to-card/90 backdrop-blur-2xl p-5 sm:p-6 shadow-xl dark:border-slate-800/80 dark:bg-[#0A1124]/90">
         {/* Glow Effects */}
         <div className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
         <div className="pointer-events-none absolute -left-12 -bottom-12 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
 
-        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-500 dark:text-emerald-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Portfolio Live
               </span>
               <span className="text-xs text-muted-foreground">•</span>
               <span className="text-xs text-muted-foreground">Admin Command Center</span>
+              <span className="text-xs text-muted-foreground hidden sm:inline">•</span>
+              <Link
+                href="/"
+                target="_blank"
+                rel="noreferrer"
+                className="hidden sm:inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+              >
+                <span>View Public Site</span>
+                <ExternalLink className="h-3 w-3" />
+              </Link>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
@@ -73,14 +98,14 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
               Here is your portfolio performance snapshot. You have{' '}
               <strong className="text-foreground">{data.totalBlogs} articles</strong>,{' '}
-              <strong className="text-foreground">{data.totalProjects} projects</strong>, and{' '}
-              <strong className="text-foreground">{data.totalSkills} technical skills</strong>{' '}
-              active.
+              <strong className="text-foreground">{data.totalProjects} projects</strong>,{' '}
+              <strong className="text-foreground">{data.totalSkills} technical skills</strong>, and{' '}
+              <strong className="text-foreground">{totalEmailsSent} emails delivered</strong>.
             </p>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <Button asChild size="sm" className="gap-1.5 font-medium shadow-md shadow-primary/20">
               <Link href="/dashboard/blog">
                 <Plus className="h-3.5 w-3.5" />
@@ -96,6 +121,13 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
             </Button>
 
             <Button asChild size="sm" variant="outline" className="gap-1.5 font-medium">
+              <Link href="/dashboard/newsletter">
+                <Mail className="h-3.5 w-3.5" />
+                <span>Newsletter</span>
+              </Link>
+            </Button>
+
+            <Button asChild size="sm" variant="outline" className="gap-1.5 font-medium">
               <Link href="/dashboard/skills">
                 <FileCode2 className="h-3.5 w-3.5" />
                 <span>Add Skill</span>
@@ -106,7 +138,7 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
               asChild
               size="sm"
               variant="ghost"
-              className="gap-1.5 font-medium text-muted-foreground hover:text-foreground"
+              className="gap-1.5 font-medium text-muted-foreground hover:text-foreground sm:hidden"
             >
               <Link href="/" target="_blank" rel="noreferrer">
                 <span>View Public Site</span>
@@ -118,7 +150,7 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
       </div>
 
       {/* ── Key KPI Bento Stats ── */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3.5 sm:gap-4 grid-cols-2 md:grid-cols-3 2xl:grid-cols-6">
         <StatsCard
           icon={BookOpen}
           label="Total Articles"
@@ -126,14 +158,6 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
           description="Active & published posts"
           badge="Blog Hub"
           href="/dashboard/blog"
-        />
-
-        <StatsCard
-          icon={Eye}
-          label="Total Readership"
-          value={formatNumber(data.blogMetrics.totalViews)}
-          description={`${totalInteractions} total interactions (likes + comments)`}
-          badge="Engagement"
         />
 
         <StatsCard
@@ -153,6 +177,32 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
           badge="Arsenal"
           href="/dashboard/skills"
         />
+
+        <StatsCard
+          icon={Eye}
+          label="Total Readership"
+          value={formatNumber(data.blogMetrics.totalViews)}
+          description={`${totalInteractions} total interactions`}
+          badge="Engagement"
+        />
+
+        <StatsCard
+          icon={Mail}
+          label="Emails Delivered"
+          value={formatNumber(totalEmailsSent)}
+          description="Broadcast & system sends"
+          badge="Outreach"
+          href="/dashboard/newsletter"
+        />
+
+        <StatsCard
+          icon={Users}
+          label="Subscribers"
+          value={formatNumber(totalSubscribers)}
+          description={`${activeSubscribers} verified & active`}
+          badge="Audience"
+          href="/dashboard/newsletter"
+        />
       </div>
 
       {/* ── Content & Articles Showcase Row ── */}
@@ -164,6 +214,13 @@ export const DashboardOverview = ({ data }: DashboardOverviewProps) => {
           <RecentBlogsCard blogs={data.recentBlogs} totalBlogs={data.totalBlogs} />
         </div>
       </div>
+
+      {/* ── Email Outreach & Newsletter Engine Row ── */}
+      {data.newsletterMetrics && (
+        <div className="grid gap-6">
+          <NewsletterInsightsCard metrics={data.newsletterMetrics} />
+        </div>
+      )}
 
       {/* ── Engineering & Skills Matrix Row ── */}
       <div className="grid gap-6 lg:grid-cols-3 items-stretch">

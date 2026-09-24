@@ -13,6 +13,7 @@ import { BreadcrumbJsonLd, SoftwareAppJsonLd } from '@/src/components/seo/JsonLd
 import ProjectDetailsHeader from '@/src/components/projects/details/ProjectDetailsHeader';
 import ProjectDetailsContent from '@/src/components/projects/details/ProjectDetailsContent';
 import ProjectDetailsSidebar from '@/src/components/projects/details/ProjectDetailsSidebar';
+import NewsletterSubscribeBox from '@/src/components/newsletter/NewsletterSubscribeBox';
 
 interface ProjectDetailsPageProps {
   params: Promise<{ slug: string }>;
@@ -173,6 +174,11 @@ export default async function ProjectDetailsPage({ params }: ProjectDetailsPageP
               screenshots={screenshots}
             />
             <ProjectDetailsSidebar project={project} technologies={technologies} />
+          </div>
+
+          {/* Newsletter Subscribe Callout */}
+          <div className="mt-14">
+            <NewsletterSubscribeBox variant="project" />
           </div>
         </section>
       </main>

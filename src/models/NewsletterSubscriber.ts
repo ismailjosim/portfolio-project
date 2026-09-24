@@ -5,6 +5,9 @@ export interface INewsletterSubscriber extends Document {
   email: string;
   name?: string;
   isActive: boolean;
+  isVerified: boolean;
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
   subscribedAt: Date;
   unsubscribedAt?: Date;
   unsubscribeToken: string;
@@ -29,7 +32,17 @@ const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
     },
     isActive: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+    },
+    verificationTokenExpires: {
+      type: Date,
     },
     subscribedAt: {
       type: Date,
@@ -48,6 +61,8 @@ const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
 
 NewsletterSubscriberSchema.index({ email: 1 });
 NewsletterSubscriberSchema.index({ isActive: 1 });
+NewsletterSubscriberSchema.index({ isVerified: 1 });
+NewsletterSubscriberSchema.index({ verificationToken: 1 });
 NewsletterSubscriberSchema.index({ unsubscribeToken: 1 });
 
 const NewsletterSubscriber: Model<INewsletterSubscriber> = registerModel<INewsletterSubscriber>(

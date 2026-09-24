@@ -1,12 +1,13 @@
 import { resend } from '@/src/lib/resend';
+import { logEmailSent } from '@/src/lib/email-logger';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
     const { name, email, phone, subject, message } = await req.json();
 
-    await resend.emails.send({
-      from: 'Portfolio <onboarding@resend.dev>',
+    const { error: resendError } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'Ismail Josim <newsletter@contact.ismailjosim.com>',
       to: 'ismailjosim99@gmail.com',
       subject: `🚀 ${subject || 'New Contact Message'}`,
       replyTo: email,
@@ -142,9 +143,37 @@ export async function POST(req: Request) {
             `,
     });
 
+    if (resendError) {
+      console.error('Resend Error:', resendError);
+      await logEmailSent({
+        recipient: 'ismailjosim99@gmail.com',
+        subject: `🚀 ${subject || 'New Contact Message'}`,
+        type: 'contact',
+        status: 'failed',
+        error: resendError.message,
+        metadata: { senderName: name, senderEmail: email, phone },
+      });
+      return NextResponse.json({ error: 'Email failed to send' }, { status: 500 });
+    }
+
+    await logEmailSent({
+      recipient: 'ismailjosim99@gmail.com',
+      subject: `🚀 ${subject || 'New Contact Message'}`,
+      type: 'contact',
+      status: 'sent',
+      metadata: { senderName: name, senderEmail: email, phone },
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Resend Error:', error);
+    await logEmailSent({
+      recipient: 'ismailjosim99@gmail.com',
+      subject: 'New Contact Message',
+      type: 'contact',
+      status: 'failed',
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json({ error: 'Email failed to send' }, { status: 500 });
   }
 }
