@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { redirect } from 'next/navigation';
 import crypto from 'crypto';
 import { connectDB } from '../../../lib/mongodb';
 import NewsletterSubscriber from '../../../models/NewsletterSubscriber';
@@ -199,49 +200,17 @@ export async function POST(req: Request) {
   }
 }
 
-// GET /api/newsletter?token=xxx — unsubscribe via token link
+// GET /api/newsletter?token=xxx — redirect to unsubscribe UI
 export async function GET(req: Request) {
-  try {
-    await connectDB();
-    const { searchParams } = new URL(req.url);
-    const token = searchParams.get('token');
+  const { searchParams } = new URL(req.url);
+  const token = searchParams.get('token');
 
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'Unsubscribe token is missing.' },
-        { status: 400 }
-      );
-    }
-
-    const subscriber = await NewsletterSubscriber.findOne({ unsubscribeToken: token });
-
-    if (!subscriber) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid or expired unsubscribe link.' },
-        { status: 404 }
-      );
-    }
-
-    if (!subscriber.isActive) {
-      return NextResponse.json({
-        success: true,
-        message: 'You are already unsubscribed.',
-      });
-    }
-
-    subscriber.isActive = false;
-    subscriber.unsubscribedAt = new Date();
-    await subscriber.save();
-
-    return NextResponse.json({
-      success: true,
-      message: 'You have been unsubscribed successfully.',
-    });
-  } catch (err) {
-    console.error('[GET /api/newsletter]', err);
-    return NextResponse.json(
-      { success: false, message: 'Something went wrong. Please try again later.' },
-      { status: 500 }
-    );
+  if (token) {
+    redirect(`/newsletter/unsubscribe?token=${token}`);
   }
+
+  return NextResponse.json(
+    { success: false, message: 'Unsubscribe token is missing.' },
+    { status: 400 }
+  );
 }
