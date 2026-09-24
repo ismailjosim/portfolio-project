@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { MailMinus, AlertTriangle, Home, CheckCircle2, RotateCcw } from 'lucide-react';
 import { connectDB } from '@/src/lib/mongodb';
 import NewsletterSubscriber from '@/src/models/NewsletterSubscriber';
@@ -15,12 +14,11 @@ export const metadata: Metadata = {
 export default async function NewsletterUnsubscribePage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; resubscribed?: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
-  const { token, resubscribed } = await searchParams;
+  const { token } = await searchParams;
 
-  let state: 'success' | 'already_unsubscribed' | 'invalid' | 'missing' | 'resubscribed' =
-    'missing';
+  let state: 'active' | 'unsubscribed' | 'invalid' | 'missing' = 'missing';
   let subscriberEmail = '';
 
   if (token) {
@@ -32,18 +30,7 @@ export default async function NewsletterUnsubscribePage({
         state = 'invalid';
       } else {
         subscriberEmail = subscriber.email;
-
-        if (resubscribed === 'true') {
-          state = 'resubscribed';
-        } else if (!subscriber.isActive) {
-          state = 'already_unsubscribed';
-        } else {
-          // Perform unsubscribe
-          subscriber.isActive = false;
-          subscriber.unsubscribedAt = new Date();
-          await subscriber.save();
-          state = 'success';
-        }
+        state = subscriber.isActive ? 'active' : 'unsubscribed';
       }
     } catch (err) {
       console.error('[Newsletter Unsubscribe Error]', err);
@@ -63,7 +50,21 @@ export default async function NewsletterUnsubscribePage({
       subscriber.unsubscribedAt = undefined;
       await subscriber.save();
       revalidatePath('/newsletter/unsubscribe');
-      redirect(`/newsletter/unsubscribe?token=${actionToken}&resubscribed=true`);
+    }
+  }
+
+  async function unsubscribeAction(formData: FormData) {
+    'use server';
+    const actionToken = formData.get('token') as string;
+    if (!actionToken) return;
+
+    await connectDB();
+    const subscriber = await NewsletterSubscriber.findOne({ unsubscribeToken: actionToken });
+    if (subscriber) {
+      subscriber.isActive = false;
+      subscriber.unsubscribedAt = new Date();
+      await subscriber.save();
+      revalidatePath('/newsletter/unsubscribe');
     }
   }
 
@@ -75,7 +76,7 @@ export default async function NewsletterUnsubscribePage({
       </div>
 
       <div className="w-full max-w-lg">
-        {state === 'success' || state === 'already_unsubscribed' ? (
+        {state === 'unsubscribed' ? (
           <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-md p-8 md:p-10 shadow-2xl text-center space-y-6">
             <div className="size-18 mx-auto rounded-full bg-muted text-muted-foreground flex items-center justify-center border border-border">
               <MailMinus className="size-10" />
@@ -83,12 +84,10 @@ export default async function NewsletterUnsubscribePage({
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {state === 'success' ? 'Unsubscribed Successfully' : 'Already Unsubscribed'}
+                Unsubscribed
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                {state === 'success'
-                  ? "You've been successfully removed from the mailing list. You won't receive any more newsletters."
-                  : "It looks like you've already unsubscribed from the newsletter."}
+                You are currently unsubscribed. You won&apos;t receive any more newsletters.
               </p>
             </div>
 
@@ -115,7 +114,7 @@ export default async function NewsletterUnsubscribePage({
               </Button>
             </div>
           </div>
-        ) : state === 'resubscribed' ? (
+        ) : state === 'active' ? (
           <div className="rounded-2xl border border-border bg-card/80 backdrop-blur-md p-8 md:p-10 shadow-2xl text-center space-y-6">
             <div className="size-18 mx-auto rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center border border-emerald-500/30">
               <CheckCircle2 className="size-10" />
@@ -123,11 +122,10 @@ export default async function NewsletterUnsubscribePage({
 
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                Welcome Back! 🎉
+                You are Subscribed 🎉
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                You have been successfully resubscribed to the newsletter. We&apos;re glad to have
-                you back!
+                You are actively subscribed to the newsletter!
               </p>
             </div>
 
@@ -138,8 +136,15 @@ export default async function NewsletterUnsubscribePage({
               </div>
             )}
 
-            <div className="pt-2 flex justify-center">
-              <Button asChild>
+            <div className="pt-4 flex flex-col items-center gap-4">
+              <form action={unsubscribeAction} className="w-full sm:w-auto">
+                <input type="hidden" name="token" value={token || ''} />
+                <Button type="submit" variant="destructive" className="w-full sm:w-auto">
+                  <MailMinus className="size-4 mr-2" />
+                  Unsubscribe Again
+                </Button>
+              </form>
+              <Button asChild variant="ghost" className="w-full sm:w-auto">
                 <Link href="/">
                   <Home className="size-4 mr-2" />
                   Go to Home

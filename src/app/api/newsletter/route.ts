@@ -200,17 +200,43 @@ export async function POST(req: Request) {
   }
 }
 
-// GET /api/newsletter?token=xxx — redirect to unsubscribe UI
+// GET /api/newsletter?token=xxx — One-click unsubscribe from email
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const token = searchParams.get('token');
+  try {
+    await connectDB();
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get('token');
 
-  if (token) {
-    redirect(`/newsletter/unsubscribe?token=${token}`);
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'Unsubscribe token is missing.' },
+        { status: 400 }
+      );
+    }
+
+    const subscriber = await NewsletterSubscriber.findOne({ unsubscribeToken: token });
+
+    if (subscriber && subscriber.isActive) {
+      // Perform the unsubscribe mutation
+      subscriber.isActive = false;
+      subscriber.unsubscribedAt = new Date();
+      await subscriber.save();
+    }
+
+    if (token) {
+      redirect(`/newsletter/unsubscribe?token=${token}`);
+    }
+  } catch (err) {
+    console.error('[GET /api/newsletter]', err);
+    // Even on error, redirect to the UI to handle it gracefully if token exists
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get('token');
+    if (token) {
+      redirect(`/newsletter/unsubscribe?token=${token}`);
+    }
+    return NextResponse.json(
+      { success: false, message: 'Something went wrong. Please try again later.' },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(
-    { success: false, message: 'Unsubscribe token is missing.' },
-    { status: 400 }
-  );
 }

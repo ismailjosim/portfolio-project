@@ -57,15 +57,15 @@ export default function HomePage() {
       <main className="homepage-sections min-h-screen transition-all duration-300">
         <HeroSection />
         <AboutSection />
-        <ProjectsSection />
+        <WorkingAreasSection />
         <SkillsSection />
         <ExperienceSection />
+        <EducationSection />
+        <ProjectsSection />
+        <GitHubSection />
         <TestimonialsSection />
         <BlogSection />
         <NewsletterSection />
-        <GitHubSection />
-        <EducationSection />
-        <WorkingAreasSection />
         <ContactSection />
       </main>
       <ScrollToTop />

@@ -15,11 +15,11 @@ import ResumeModal from '../ui/ResumeModal';
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'About Me', href: '#about' },
-  { name: 'Projects', href: '#projects' },
   { name: 'Technical Skills', href: '#skills' },
   { name: 'Experiences', href: '#experience' },
-  { name: 'Blogs', href: '#blog' },
   { name: 'Education', href: '#education' },
+  { name: 'Projects', href: '#projects' },
+  { name: 'Blogs', href: '#blog' },
   { name: 'Contact', href: '#contact' },
 ];
 
