@@ -70,7 +70,7 @@ function normalizeCategory(rawCat: string): {
 export default function SkillsSection() {
   const [skillGroups, setSkillGroups] = useState<SkillGroupData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [layoutMode, setLayoutMode] = useState<'bento' | 'orbitals'>('orbitals');
+  const [layoutMode, setLayoutMode] = useState<'bento' | 'orbitals'>('bento');
 
   useEffect(() => {
     async function fetchSkills() {

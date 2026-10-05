@@ -4,6 +4,7 @@ import { Share2, Check, Copy, Twitter, Linkedin } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/src/components/ui/button';
+import { siteConfig } from '@/src/constants/site-config';
 
 interface BlogShareBarProps {
   title: string;
@@ -14,10 +15,16 @@ export default function BlogShareBar({ title, slug }: BlogShareBarProps) {
   const [copied, setCopied] = useState(false);
 
   const getShareUrl = () => {
-    if (typeof window !== 'undefined') {
+    // If running in development / localhost, always share the live domain
+    if (
+      typeof window !== 'undefined' &&
+      !window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('127.0.0.1')
+    ) {
       return `${window.location.origin}/blogs/${slug}`;
     }
-    return `https://www.ismailjosim.com/blogs/${slug}`;
+    const baseUrl = siteConfig.url || 'https://www.ismailjosim.com';
+    return `${baseUrl.replace(/\/$/, '')}/blogs/${slug}`;
   };
 
   const handleCopyLink = async () => {

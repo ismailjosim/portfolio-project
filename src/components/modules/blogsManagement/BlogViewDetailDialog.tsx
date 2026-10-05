@@ -21,6 +21,7 @@ import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
 import { formatDateTime } from '../../../lib/formatters.ts';
 import { useTheme } from 'next-themes';
+import { siteConfig } from '@/src/constants/site-config';
 
 // Dynamically import MDEditor preview to avoid SSR issues
 const MDPreview = dynamic(
@@ -40,8 +41,19 @@ const BlogViewDetailDialog = ({ open, onClose, blog }: IBlogViewDialogProps) => 
 
   if (!blog) return null;
 
-  const blogUrl =
-    typeof window !== 'undefined' ? `${window.location.origin}/blogs/${blog.slug}` : '';
+  const getBlogUrl = () => {
+    if (
+      typeof window !== 'undefined' &&
+      !window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('127.0.0.1')
+    ) {
+      return `${window.location.origin}/blogs/${blog.slug}`;
+    }
+    const baseUrl = siteConfig.url || 'https://www.ismailjosim.com';
+    return `${baseUrl.replace(/\/$/, '')}/blogs/${blog.slug}`;
+  };
+
+  const blogUrl = getBlogUrl();
 
   const handleCopyUrl = async () => {
     try {

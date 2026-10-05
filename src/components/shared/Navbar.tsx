@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Search, FileText } from 'lucide-react';
@@ -32,6 +32,8 @@ export default function Navbar() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
 
   const isHomePage = pathname === '/';
+  const isClickScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentActive = !isHomePage
     ? pathname.startsWith('/blogs')
@@ -44,43 +46,67 @@ export default function Navbar() {
   useEffect(() => {
     if (!isHomePage) return;
 
+    // Handle initial hash in URL on page load
+    if (window.location.hash) {
+      const hash = window.location.hash;
+      const targetEl = document.getElementById(hash.substring(1));
+      if (targetEl) {
+        setActiveSection(hash);
+        setTimeout(() => {
+          const navHeight = 90;
+          const elementTop = targetEl.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: hash === '#home' ? 0 : Math.max(0, elementTop - navHeight),
+            behavior: 'smooth',
+          });
+        }, 150);
+      }
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
-      // Check if user scrolled near the bottom of the page
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      if (documentHeight - scrollPosition < 120) {
-        setActiveSection('#contact');
-        return;
-      }
+      // When smooth scroll was triggered by clicking a nav link, don't override activeSection
+      if (isClickScrollingRef.current) return;
 
-      // Check if user is at the very top of the page
+      // 1. Very top of page
       if (window.scrollY < 120) {
         setActiveSection('#home');
         return;
       }
 
-      const sections = navItems.map((item) => item.href.substring(1));
-      const focalPoint = 180;
-      let current = sections[0];
+      // 2. Near bottom of page
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      if (documentHeight - scrollPosition < 220) {
+        setActiveSection('#contact');
+        return;
+      }
 
-      for (const section of sections) {
-        const el = document.getElementById(section);
+      // 3. Section proximity probe: determine current section by probing below the fixed navbar
+      const probeY = window.scrollY + 140;
+      let matched = 'home';
+
+      for (const item of navItems) {
+        const id = item.href.substring(1);
+        const el = document.getElementById(id);
         if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= focalPoint && rect.bottom > focalPoint) {
-            current = section;
-            break;
+          const elementTop = el.getBoundingClientRect().top + window.scrollY;
+          if (probeY >= elementTop) {
+            matched = id;
           }
         }
       }
-      setActiveSection(`#${current}`);
+
+      setActiveSection(`#${matched}`);
     };
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
   }, [isHomePage]);
 
   const handleNavClick = (
@@ -93,9 +119,23 @@ export default function Navbar() {
       const id = href.substring(1);
       const el = document.getElementById(id);
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        isClickScrollingRef.current = true;
         setActiveSection(href);
         window.history.pushState(null, '', href);
+
+        const navHeight = 90;
+        const elementTop = el.getBoundingClientRect().top + window.scrollY;
+        const targetPosition = id === 'home' ? 0 : Math.max(0, elementTop - navHeight);
+
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth',
+        });
+
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+          isClickScrollingRef.current = false;
+        }, 850);
       }
     }
     if (onComplete) {
