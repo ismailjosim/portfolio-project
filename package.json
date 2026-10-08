@@ -15,6 +15,7 @@
     "@next/third-parties": "^16.4.0",
     "@radix-ui/react-tabs": "^1.1.13",
     "@uiw/react-md-editor": "^4.0.11",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",

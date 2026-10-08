@@ -7,6 +7,7 @@ import { ThemeProvider } from '../providers/theme-provider';
 import { CustomThemeProvider } from '../providers/custom-theme-provider';
 import { getGlobalThemeSettings } from '../lib/theme-settings';
 import { siteConfig } from '../constants/site-config';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -86,6 +87,7 @@ export default async function RootLayout({
     >
       <body>
         <GoogleAnalytics gaId={gaId} />
+        <Analytics />
         <ThemeProvider attribute="class" defaultTheme={themeSettings.themeMode} enableSystem>
           <CustomThemeProvider
             initialPalette={themeSettings.palette}
