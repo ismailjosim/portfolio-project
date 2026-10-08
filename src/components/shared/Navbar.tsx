@@ -47,12 +47,13 @@ export default function Navbar() {
     if (!isHomePage) return;
 
     // Handle initial hash in URL on page load
+    let initialTimer: NodeJS.Timeout | null = null;
     if (window.location.hash) {
       const hash = window.location.hash;
       const targetEl = document.getElementById(hash.substring(1));
       if (targetEl) {
-        setActiveSection(hash);
-        setTimeout(() => {
+        initialTimer = setTimeout(() => {
+          setActiveSection(hash);
           const navHeight = 90;
           const elementTop = targetEl.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({
@@ -105,6 +106,7 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      if (initialTimer) clearTimeout(initialTimer);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
   }, [isHomePage]);

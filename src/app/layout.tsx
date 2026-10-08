@@ -6,7 +6,6 @@ import { TooltipProvider } from '../components/ui/tooltip';
 import { ThemeProvider } from '../providers/theme-provider';
 import { CustomThemeProvider } from '../providers/custom-theme-provider';
 import { getGlobalThemeSettings } from '../lib/theme-settings';
-
 import { siteConfig } from '../constants/site-config';
 
 export const metadata: Metadata = {
@@ -76,6 +75,7 @@ export default async function RootLayout({
 }>) {
   // Global theme, resolved on the server so the first paint is already correct.
   const themeSettings = await getGlobalThemeSettings();
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID as string;
 
   return (
     <html
@@ -85,7 +85,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <GoogleAnalytics gaId="G-15WHNML4PN" />
+        <GoogleAnalytics gaId={gaId} />
         <ThemeProvider attribute="class" defaultTheme={themeSettings.themeMode} enableSystem>
           <CustomThemeProvider
             initialPalette={themeSettings.palette}
@@ -95,7 +95,6 @@ export default async function RootLayout({
           >
             <TooltipProvider>
               {children}
-
               <Toaster position="top-right" richColors />
             </TooltipProvider>
           </CustomThemeProvider>
