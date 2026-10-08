@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 import { TooltipProvider } from '../components/ui/tooltip';
@@ -84,6 +85,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <GoogleAnalytics gaId="G-15WHNML4PN" />
         <ThemeProvider attribute="class" defaultTheme={themeSettings.themeMode} enableSystem>
           <CustomThemeProvider
             initialPalette={themeSettings.palette}
