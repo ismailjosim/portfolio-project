@@ -7,7 +7,7 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ismailjosim.com',
   resumeUrl: '/MD_JASIM_FullStack_Resume.pdf',
   ogImage: '/og-image.png',
-  avatar: '/sticker.png',
+  avatar: '/android-chrome-512x512.png',
   photo: '/person-vector.png',
   email: 'ismailjosim@yahoo.com',
   phone: '+880-1715-052-808',

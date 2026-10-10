@@ -163,7 +163,7 @@ export default function Navbar() {
         <div className="flex flex-col justify-center border border-primary rounded-full">
           <Link href="/" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
             <Avatar className="w-12 h-12">
-              <AvatarImage className="object-contain" src="/sticker.png" />
+              <AvatarImage className="object-contain" src="/android-chrome-512x512.png" />
               <AvatarFallback>J.</AvatarFallback>
             </Avatar>
           </Link>

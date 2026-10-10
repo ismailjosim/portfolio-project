@@ -20,8 +20,8 @@ interface ResumeModalProps {
 }
 
 const RESUME_PAGES = [
-  { src: '/resume-page-1.png', page: 1 },
-  { src: '/resume-page-2.png', page: 2 },
+  { src: '/MD_JASIM_FullStack_Resume_page-0001.jpg', page: 1 },
+  { src: '/MD_JASIM_FullStack_Resume_page-0002.jpg', page: 2 },
 ];
 
 export default function ResumeModal({ open, onOpenChange }: ResumeModalProps) {

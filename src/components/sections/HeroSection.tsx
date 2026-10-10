@@ -54,7 +54,8 @@ const BADGES = [
     iconBg: 'bg-emerald-500/10 dark:bg-emerald-500/15',
     iconRing: 'ring-1 ring-emerald-500/25',
     iconColor: 'text-emerald-500 dark:text-emerald-400',
-    position: 'bottom-8 -left-2 sm:bottom-10 sm:-left-3 lg:-left-3 xl:-left-4 [animation-delay:1.5s]',
+    position:
+      'bottom-8 -left-2 sm:bottom-10 sm:-left-3 lg:-left-3 xl:-left-4 [animation-delay:1.5s]',
   },
   {
     icon: FileCheck,
@@ -255,9 +256,7 @@ export default function HeroSection() {
                       <Icon size={11} className={badge.iconColor} />
                     </div>
                     <div className="flex items-center gap-1.5 whitespace-nowrap pr-0.5">
-                      <span className="font-bold text-xs text-foreground">
-                        {badge.title}
-                      </span>
+                      <span className="font-bold text-xs text-foreground">{badge.title}</span>
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                       <span className="text-[10px] text-muted-foreground font-medium">
                         {badge.subtitle}
