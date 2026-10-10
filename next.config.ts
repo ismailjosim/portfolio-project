@@ -4,9 +4,9 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
-  img-src 'self' blob: data: https://res.cloudinary.com https://avatars.githubusercontent.com https://raw.githubusercontent.com https://images.unsplash.com https://utfs.io https://www.ismailjosim.com;
+  img-src 'self' blob: data: https://res.cloudinary.com https://avatars.githubusercontent.com https://raw.githubusercontent.com https://images.unsplash.com https://utfs.io https://www.ismailjosim.com https://ghchart.rshah.org https://github-readme-stats.vercel.app;
   font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:;
-  connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://va.vercel-scripts.com https://api.github.com https://res.cloudinary.com;
+  connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://va.vercel-scripts.com https://api.github.com https://res.cloudinary.com https://github-contributions-api.jogruber.de;
   object-src 'none';
   base-uri 'self';
   form-action 'self';

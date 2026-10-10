@@ -1,10 +1,9 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { Mail, Layers, Trophy, GithubIcon, Code2, FileCheck, Users, FileText } from 'lucide-react';
+import { useCallback } from 'react';
+import { Mail, Layers, Trophy, GithubIcon, Code2, FileCheck, Users, Send } from 'lucide-react';
 import { ReactTyped } from 'react-typed';
 import SocialIcons from '../shared/SocialIcons';
-import ResumeModal from '../ui/ResumeModal';
 
 const TYPED_TEXTS = [
   'Full Stack Developer',
@@ -69,8 +68,6 @@ const BADGES = [
 ];
 
 export default function HeroSection() {
-  const [isResumeOpen, setIsResumeOpen] = useState(false);
-
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -82,8 +79,6 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <>
-      <ResumeModal open={isResumeOpen} onOpenChange={setIsResumeOpen} />
 
       <section
         id="home"
@@ -152,11 +147,11 @@ export default function HeroSection() {
               </a>
 
               <button
-                onClick={() => setIsResumeOpen(true)}
+                onClick={() => scrollToSection('newsletter')}
                 className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-sm font-semibold transition-transform hover:scale-105 active:scale-95 cursor-pointer hover:border-primary/40"
               >
-                <FileText size={16} className="text-primary" />
-                View Resume
+                <Send size={16} className="text-primary" />
+                Join Newsletter
               </button>
 
               <button
@@ -269,6 +264,5 @@ export default function HeroSection() {
           </div>
         </div>
       </section>
-    </>
   );
 }
