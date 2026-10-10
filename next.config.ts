@@ -2,11 +2,11 @@ import type { NextConfig } from 'next';
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https:;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' blob: data: https:;
-  font-src 'self' https://fonts.gstatic.com data:;
-  connect-src 'self' https: wss:;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+  img-src 'self' blob: data: https://res.cloudinary.com https://avatars.githubusercontent.com https://raw.githubusercontent.com https://images.unsplash.com https://utfs.io https://www.ismailjosim.com;
+  font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:;
+  connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://va.vercel-scripts.com https://api.github.com https://res.cloudinary.com;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
@@ -52,7 +52,27 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ismailjosim.com',
       },
     ],
   },

@@ -32,8 +32,6 @@ const BlockedEmailSchema = new Schema<IBlockedEmail>(
   { timestamps: true }
 );
 
-BlockedEmailSchema.index({ email: 1 });
-
 const BlockedEmail: Model<IBlockedEmail> = registerModel<IBlockedEmail>(
   'BlockedEmail',
   BlockedEmailSchema

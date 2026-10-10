@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken, SESSION_COOKIE } from '@/src/lib/dashboard-auth';
 
 const PROTECTED = '/dashboard';
 const LOGIN = '/login';
-const COOKIE_NAME = 'dashboard_session';
-const SESSION_VALUE = 'authenticated';
 
 // Next.js 16: renamed from middleware.ts → proxy.ts
 // Function export is also renamed from `middleware` → `proxy`
@@ -14,9 +13,9 @@ export function proxy(request: NextRequest) {
   // Only guard /dashboard and its sub-routes
   if (!pathname.startsWith(PROTECTED)) return NextResponse.next();
 
-  const session = request.cookies.get(COOKIE_NAME)?.value;
+  const session = request.cookies.get(SESSION_COOKIE)?.value;
 
-  if (session === SESSION_VALUE) return NextResponse.next();
+  if (verifySessionToken(session)) return NextResponse.next();
 
   // Not authenticated → redirect to /login, remembering the original destination
   const loginUrl = new URL(LOGIN, request.url);

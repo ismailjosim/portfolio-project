@@ -22,9 +22,6 @@ export interface IWorkArea {
   desc: string;
 }
 
-// --------------------------
-// Interfaces
-// --------------------------
 export interface Skill {
   name: string;
   icon: LucideIcon;

@@ -2,10 +2,15 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '../../../../lib/mongodb';
 import NewsletterSubscriber from '../../../../models/NewsletterSubscriber';
 import BlockedEmail from '../../../../models/BlockedEmail';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 // GET /api/newsletter/subscribers — admin: list all subscribers
 export async function GET(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -49,6 +54,10 @@ export async function GET(req: Request) {
 // DELETE /api/newsletter/subscribers?id=xxx or ?email=xxx — admin: delete subscriber
 export async function DELETE(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -61,22 +70,27 @@ export async function DELETE(req: Request) {
       );
     }
 
-    const query = id ? { _id: id } : { email: email?.toLowerCase() };
-    const deleted = await NewsletterSubscriber.findOneAndDelete(query);
-
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, message: 'Subscriber not found.' },
-        { status: 404 }
-      );
+    if (id) {
+      const deleted = await NewsletterSubscriber.findByIdAndDelete(id);
+      if (!deleted) {
+        return NextResponse.json(
+          { success: false, message: 'Subscriber not found.' },
+          { status: 404 }
+        );
+      }
+    } else if (email) {
+      const deleted = await NewsletterSubscriber.findOneAndDelete({ email: email.toLowerCase() });
+      if (!deleted) {
+        return NextResponse.json(
+          { success: false, message: 'Subscriber not found.' },
+          { status: 404 }
+        );
+      }
     }
-
-    // Also remove from BlockedEmail if present
-    await BlockedEmail.deleteOne({ email: deleted.email.toLowerCase() });
 
     return NextResponse.json({
       success: true,
-      message: `Subscriber ${deleted.email} deleted successfully.`,
+      message: 'Subscriber deleted successfully.',
     });
   } catch (err) {
     console.error('[DELETE /api/newsletter/subscribers]', err);
@@ -90,6 +104,10 @@ export async function DELETE(req: Request) {
 // PATCH /api/newsletter/subscribers — admin: update subscriber status
 export async function PATCH(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
     const { id, email, isActive } = body;

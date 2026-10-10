@@ -4,6 +4,11 @@ import slugify from 'slugify';
 import { parseMongooseError } from '@/src/lib/parseMongooseError';
 import { connectDB } from '@/src/lib/mongodb';
 import Project from '@/src/models/project.model';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
+
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export async function GET(req: Request) {
   try {
@@ -38,11 +43,12 @@ export async function GET(req: Request) {
     if (featured === 'true') filter.featured = true;
 
     if (search) {
+      const safeSearch = escapeRegex(search.trim());
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { title: { $regex: search, $options: 'i' } },
-        { subtitle: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { subtitle: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -77,6 +83,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();

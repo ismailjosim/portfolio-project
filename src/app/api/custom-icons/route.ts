@@ -3,6 +3,7 @@ import { connectDB } from '@/src/lib/mongodb';
 import CustomIcon from '@/src/models/CustomIcon';
 import Skill from '@/src/models/Skill';
 import { deleteCloudinaryImage } from '@/src/lib/cloudinary';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 // GET all custom icons (from CustomIcon collection + any existing custom skill icons)
 export async function GET() {
@@ -55,6 +56,10 @@ export async function GET() {
 // POST save a new custom icon
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
 
@@ -85,6 +90,10 @@ export async function POST(req: Request) {
 // DELETE a custom icon and remove its Cloudinary asset
 export async function DELETE(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');

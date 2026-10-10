@@ -59,7 +59,6 @@ const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
   { timestamps: true }
 );
 
-NewsletterSubscriberSchema.index({ email: 1 });
 NewsletterSubscriberSchema.index({ isActive: 1 });
 NewsletterSubscriberSchema.index({ isVerified: 1 });
 NewsletterSubscriberSchema.index({ verificationToken: 1 });

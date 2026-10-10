@@ -19,7 +19,7 @@ import { Badge } from '../../ui/badge';
 import InfoRow from '../../shared/InfoRow';
 import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
-import { formatDateTime } from '../../../lib/formatters.ts';
+import { formatDateTime } from '@/src/lib/formatters';
 import { useTheme } from 'next-themes';
 import { siteConfig } from '@/src/constants/site-config';
 

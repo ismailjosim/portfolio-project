@@ -5,9 +5,14 @@ import {
 } from '@/src/services/newsletter-management';
 import { connectDB } from '@/src/lib/mongodb';
 import NewsletterTemplate from '@/src/models/NewsletterTemplate';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 export async function GET(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
     const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 10;
@@ -28,6 +33,10 @@ export async function GET(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -56,6 +65,10 @@ export async function DELETE(req: Request) {
 // POST endpoint to manually create a template if needed
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const body = await req.json();
     const { subject, content, html, recipientCount } = body;
@@ -75,11 +88,7 @@ export async function POST(req: Request) {
       sentAt: new Date(),
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Template saved successfully.',
-      template,
-    });
+    return NextResponse.json({ success: true, template }, { status: 201 });
   } catch (err: unknown) {
     console.error('[POST /api/newsletter/templates]', err);
     return NextResponse.json(

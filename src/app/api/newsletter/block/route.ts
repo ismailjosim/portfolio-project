@@ -2,10 +2,15 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '../../../../lib/mongodb';
 import BlockedEmail from '../../../../models/BlockedEmail';
 import NewsletterSubscriber from '../../../../models/NewsletterSubscriber';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 // GET /api/newsletter/block — list all blocked emails
 export async function GET() {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const blocked = await BlockedEmail.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, data: blocked });
@@ -21,6 +26,10 @@ export async function GET() {
 // POST /api/newsletter/block — block an email
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { email, reason } = await req.json();
     const cleanEmail = (email || '').trim().toLowerCase();
@@ -73,6 +82,10 @@ export async function POST(req: Request) {
 // DELETE /api/newsletter/block?email=xxx — unblock an email
 export async function DELETE(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { searchParams } = new URL(req.url);
     const email = (searchParams.get('email') || '').trim().toLowerCase();

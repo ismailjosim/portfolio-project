@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '../../../../lib/mongodb';
 import { publishDueScheduledBlogs } from '../../../../lib/publish-scheduled-blogs';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 export const dynamic = 'force-dynamic';
 
-// Optional: to authorize this cron, take the request back as a parameter and check a
-// secret header, e.g. `GET(req: Request)` +
-// `if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) ...`
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    const authHeader = req.headers.get('authorization');
+    const isCronAuthorized = cronSecret && authHeader === `Bearer ${cronSecret}`;
+    const isAdmin = await isDashboardAuthenticated();
+
+    if (cronSecret && !isCronAuthorized && !isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const result = await publishDueScheduledBlogs();

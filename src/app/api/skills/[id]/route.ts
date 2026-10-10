@@ -4,6 +4,7 @@ import { connectDB } from '../../../../lib/mongodb';
 import Skill from '@/src/models/Skill';
 import { Types } from 'mongoose';
 import { deleteCloudinaryImage } from '../../../../lib/cloudinary';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 // Get single skill
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -31,6 +32,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 // Update skill
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { id } = await params;
     const body = await req.json();
@@ -62,21 +67,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       }
     }
 
-    const skill = await Skill.findByIdAndUpdate(id, body, {
+    const updatedSkill = await Skill.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
 
-    return NextResponse.json(skill);
+    return NextResponse.json(updatedSkill);
   } catch (err: unknown) {
     const errors = parseMongooseError(err);
-
     if (errors) {
       return NextResponse.json({ errors }, { status: 422 });
     }
-
     console.error('[PATCH /api/skills/:id]', err);
-
     return NextResponse.json({ error: 'Failed to update skill' }, { status: 500 });
   }
 }
@@ -84,6 +86,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 // Delete skill
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { id } = await params;
 

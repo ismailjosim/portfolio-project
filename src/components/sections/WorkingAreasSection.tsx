@@ -3,7 +3,7 @@
 import FadeUp from '../ui/FadeUp';
 import { Code2, ServerCog, Database, Layers, Users, Rocket } from 'lucide-react';
 import { Card } from '../ui/card';
-import type { IWorkArea } from '@/src/interface/content.interface';
+import type { IWorkArea } from '@/src/types/content.interface';
 
 const areas: IWorkArea[] = [
   {

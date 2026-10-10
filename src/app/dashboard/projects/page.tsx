@@ -5,7 +5,7 @@ import ProjectManagementHeader from '@/src/components/modules/projectsManagement
 import ProjectsTable from '@/src/components/modules/projectsManagement/ProjectsTable';
 import TablePagination from '@/src/components/shared/TablePagination';
 import { TableSkeleton } from '@/src/components/shared/TableSkeleton';
-import { queryStringFormatter } from '@/src/lib/formatters.ts';
+import { queryStringFormatter } from '@/src/lib/formatters';
 import { getAllProjects } from '@/src/services/project-management';
 
 export const metadata: Metadata = {

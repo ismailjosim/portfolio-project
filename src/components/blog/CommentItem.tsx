@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Heart, MessageCircle, Send } from 'lucide-react';
-import { formatDateTime } from '@/src/lib/formatters.ts';
+import { formatDateTime } from '@/src/lib/formatters';
 import type { CommentNode } from '@/src/lib/comment-tree';
 
 interface CommentItemProps {
@@ -67,7 +67,7 @@ export default function CommentItem({ comment, depth, onToggleLike, onReply }: C
             </span>
           </div>
 
-          <p className="text-sm mt-1 whitespace-pre-wrap break-words">{comment.content}</p>
+          <p className="text-sm mt-1 whitespace-pre-wrap wrap-break-word">{comment.content}</p>
         </div>
 
         {/* Actions */}

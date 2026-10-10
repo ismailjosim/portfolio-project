@@ -5,6 +5,11 @@ import Blog from '../../../models/Blog';
 import { parseMongooseError } from '../../../lib/parseMongooseError';
 import { connectDB } from '../../../lib/mongodb';
 import { publishDueScheduledBlogs } from '../../../lib/publish-scheduled-blogs';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
+
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 // GET /api/blogs
 // Supports: ?page=1&limit=10&category=nextjs&tag=react&search=hello
@@ -47,8 +52,6 @@ export async function GET(req: Request) {
       status: { status: sortOrder, createdAt: -1 },
     };
 
-    // Default stays `createdAt` here: the dashboard table is a work queue, so the
-    // admin wants newest-authored first. Only the public list orders by publishedAt.
     const sort = sortOptions[sortBy] ?? sortOptions.createdAt;
 
     const filter: Record<string, unknown> = {};
@@ -57,9 +60,10 @@ export async function GET(req: Request) {
     if (tag) filter.tags = tag;
 
     if (search) {
+      const safeSearch = escapeRegex(search.trim());
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { content: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -96,6 +100,10 @@ export async function GET(req: Request) {
 // POST /api/blogs
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();

@@ -73,7 +73,9 @@ export const BlogFormDialog: React.FC<IBlogDialogProps> = ({ open, onClose, onSu
           ? new Date(blog.scheduledPublishDate).toISOString().slice(0, 16)
           : '',
         related: (blog.related || []).map((r: IBlog | string) =>
-          typeof r === 'string' ? { value: r, label: r } : { value: r._id as string, label: r.title }
+          typeof r === 'string'
+            ? { value: r, label: r }
+            : { value: r._id as string, label: r.title }
         ),
       });
     } else {

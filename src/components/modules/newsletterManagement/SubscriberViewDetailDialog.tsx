@@ -11,6 +11,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { Subscriber } from '@/src/types/newsletter.interface';
+import { formatDateTime as formatDate } from '@/src/lib/formatters';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { Badge } from '../../ui/badge';
 import InfoRow from '../../shared/InfoRow';
@@ -33,19 +34,6 @@ export function SubscriberViewDetailDialog({
   onInitiateUnblock,
 }: SubscriberViewDetailDialogProps) {
   if (!subscriber) return null;
-
-  const formatDate = (dateVal?: string | Date) => {
-    if (!dateVal) return 'N/A';
-    const d = new Date(dateVal);
-    if (isNaN(d.getTime())) return 'N/A';
-    return d.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   const isBlocked = subscriber.status === 'blocked' || subscriber.isBlocked;
 

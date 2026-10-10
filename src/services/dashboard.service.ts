@@ -1,5 +1,7 @@
-import { serverFetch } from '../lib/server-fetch';
 import { connectDB } from '../lib/mongodb';
+import BlogModel from '../models/Blog';
+import ProjectModel from '../models/project.model';
+import SkillModel from '../models/Skill';
 import SentEmailLog from '../models/SentEmailLog';
 import NewsletterSubscriber from '../models/NewsletterSubscriber';
 
@@ -62,158 +64,119 @@ export interface DashboardStats {
 }
 
 /* =========================
-   Helpers
-========================= */
-
-// Normalize API response safely
-function extractArray<T>(data: unknown, key: string): T[] {
-  if (Array.isArray(data)) return data as T[];
-
-  if (typeof data === 'object' && data !== null) {
-    const obj = data as Record<string, unknown>;
-    if (Array.isArray(obj[key])) return obj[key] as T[];
-    if (Array.isArray(obj.data)) return obj.data as T[];
-  }
-
-  return [];
-}
-
-/* =========================
    Service
 ========================= */
 
 export async function getDashboardData(): Promise<DashboardStats> {
   try {
-    const [blogsRes, projectsRes, skillsRes] = await Promise.all([
-      serverFetch.get('/blogs?limit=100'),
-      serverFetch.get('/projects?limit=100'),
-      serverFetch.get('/skills?limit=100').catch(() => null),
+    await connectDB();
+
+    const [
+      totalBlogs,
+      totalProjects,
+      totalSkills,
+      blogStatsAggregate,
+      recentBlogsDocs,
+      recentProjectsDocs,
+      skillsDocs,
+      totalSentLogCount,
+      broadcastCount,
+      verificationCount,
+      welcomeCount,
+      contactCount,
+      totalSubs,
+      activeSubs,
+    ] = await Promise.all([
+      BlogModel.countDocuments(),
+      ProjectModel.countDocuments(),
+      SkillModel.countDocuments(),
+      BlogModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalViews: { $sum: '$views' },
+            totalLikes: { $sum: '$likesCount' },
+            totalComments: { $sum: '$commentsCount' },
+          },
+        },
+      ]),
+      BlogModel.find()
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .select('title views likesCount commentsCount createdAt')
+        .lean(),
+      ProjectModel.find().sort({ createdAt: -1 }).limit(3).select('title createdAt').lean(),
+      SkillModel.find().select('name category proficiency').lean(),
+      SentEmailLog.countDocuments({ status: 'sent' }).catch(() => 0),
+      SentEmailLog.countDocuments({ type: 'newsletter', status: 'sent' }).catch(() => 0),
+      SentEmailLog.countDocuments({ type: 'verification', status: 'sent' }).catch(() => 0),
+      SentEmailLog.countDocuments({ type: 'welcome', status: 'sent' }).catch(() => 0),
+      SentEmailLog.countDocuments({ type: 'contact', status: 'sent' }).catch(() => 0),
+      NewsletterSubscriber.countDocuments().catch(() => 0),
+      NewsletterSubscriber.countDocuments({ isActive: true, isVerified: true }).catch(() => 0),
     ]);
 
-    const blogsData = blogsRes.ok ? await blogsRes.json() : [];
-    const projectsData = projectsRes.ok ? await projectsRes.json() : [];
-    const skillsData = skillsRes && skillsRes.ok ? await skillsRes.json() : [];
-
-    const blogs = extractArray<Blog>(blogsData, 'blogs');
-    const projects = extractArray<Project>(projectsData, 'projects');
-    const skills = extractArray<Skill>(skillsData, 'skills');
-
-    /* =========================
-		   Blog Metrics
-		========================= */
-
-    const totalViews = blogs.reduce<number>((sum, blog) => sum + (blog.views ?? 0), 0);
-
-    const totalLikes = blogs.reduce<number>((sum, blog) => sum + (blog.likesCount ?? 0), 0);
-
-    const totalComments = blogs.reduce<number>((sum, blog) => sum + (blog.commentsCount ?? 0), 0);
-
-    const averageViews = blogs.length > 0 ? totalViews / blogs.length : 0;
-
-    /* =========================
-		   Skills Metrics
-		========================= */
+    const stats = blogStatsAggregate[0] || { totalViews: 0, totalLikes: 0, totalComments: 0 };
+    const totalViews = stats.totalViews || 0;
+    const totalLikes = stats.totalLikes || 0;
+    const totalComments = stats.totalComments || 0;
+    const averageViews = totalBlogs > 0 ? totalViews / totalBlogs : 0;
 
     const skillsByCategory: Record<string, number> = {};
     const proficiencyBreakdown: Record<string, number> = {};
 
-    for (const skill of skills) {
+    for (const skill of skillsDocs) {
       const category = skill.category ?? 'Uncategorized';
       skillsByCategory[category] = (skillsByCategory[category] ?? 0) + 1;
 
-      const proficiency = skill.proficiency ?? 'intermediate';
+      const proficiency = (skill.proficiency as string) ?? 'intermediate';
       proficiencyBreakdown[proficiency] = (proficiencyBreakdown[proficiency] ?? 0) + 1;
     }
 
-    /* =========================
-		   Newsletter & Email Metrics
-		========================= */
-
-    let totalEmailsSent = 0;
-    let totalSubscribers = 0;
-    let activeSubscribers = 0;
-    let broadcastsSent = 0;
-    let verificationsSent = 0;
-    let welcomeSent = 0;
-    let contactMessagesSent = 0;
-
-    try {
-      await connectDB();
-      const [
-        totalSentLogCount,
-        broadcastCount,
-        verificationCount,
-        welcomeCount,
-        contactCount,
-        totalSubs,
-        activeSubs,
-      ] = await Promise.all([
-        SentEmailLog.countDocuments({ status: 'sent' }),
-        SentEmailLog.countDocuments({ type: 'newsletter', status: 'sent' }),
-        SentEmailLog.countDocuments({ type: 'verification', status: 'sent' }),
-        SentEmailLog.countDocuments({ type: 'welcome', status: 'sent' }),
-        SentEmailLog.countDocuments({ type: 'contact', status: 'sent' }),
-        NewsletterSubscriber.countDocuments(),
-        NewsletterSubscriber.countDocuments({ isActive: true, isVerified: true }),
-      ]);
-
-      totalEmailsSent = totalSentLogCount;
-      broadcastsSent = broadcastCount;
-      verificationsSent = verificationCount;
-      welcomeSent = welcomeCount;
-      contactMessagesSent = contactCount;
-      totalSubscribers = totalSubs;
-      activeSubscribers = activeSubs;
-    } catch (dbErr) {
-      console.error('Error fetching email metrics:', dbErr);
-    }
-
-    /* =========================
-		   Sorting
-		========================= */
-
-    const sortedBlogs = [...blogs].sort((a, b) => {
-      const dateA = new Date(a.createdAt ?? 0).getTime();
-      const dateB = new Date(b.createdAt ?? 0).getTime();
-      return dateB - dateA;
-    });
-
-    /* =========================
-		   Final Response
-		========================= */
-
     return {
-      totalBlogs: blogs.length,
-      totalProjects: projects.length,
-      totalSkills: skills.length,
-
+      totalBlogs,
+      totalProjects,
+      totalSkills,
       blogMetrics: {
-        totalBlogs: blogs.length,
+        totalBlogs,
         totalViews,
         totalLikes,
         totalComments,
         averageViews,
       },
-
       skillsMetrics: {
-        totalSkills: skills.length,
+        totalSkills,
         skillsByCategory,
         proficiencyBreakdown,
       },
-
       newsletterMetrics: {
-        totalEmailsSent,
-        totalSubscribers,
-        activeSubscribers,
-        broadcastsSent,
-        verificationsSent,
-        welcomeSent,
-        contactMessagesSent,
+        totalEmailsSent: totalSentLogCount,
+        totalSubscribers: totalSubs,
+        activeSubscribers: activeSubs,
+        broadcastsSent: broadcastCount,
+        verificationsSent: verificationCount,
+        welcomeSent: welcomeCount,
+        contactMessagesSent: contactCount,
       },
-
-      recentBlogs: sortedBlogs.slice(0, 4),
-      projects: projects.slice(0, 3),
-      skills: skills.slice(0, 12),
+      recentBlogs: recentBlogsDocs.map((b) => ({
+        _id: String(b._id),
+        title: b.title,
+        views: b.views,
+        likesCount: b.likesCount,
+        commentsCount: b.commentsCount,
+        createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : undefined,
+      })),
+      projects: recentProjectsDocs.map((p) => ({
+        _id: String(p._id),
+        title: p.title,
+        createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : undefined,
+      })),
+      skills: skillsDocs.slice(0, 12).map((s) => ({
+        _id: String(s._id),
+        name: s.name,
+        category: s.category,
+        proficiency: s.proficiency as Skill['proficiency'],
+      })),
     };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
@@ -222,7 +185,6 @@ export async function getDashboardData(): Promise<DashboardStats> {
       totalBlogs: 0,
       totalProjects: 0,
       totalSkills: 0,
-
       blogMetrics: {
         totalBlogs: 0,
         totalViews: 0,
@@ -230,13 +192,11 @@ export async function getDashboardData(): Promise<DashboardStats> {
         totalComments: 0,
         averageViews: 0,
       },
-
       skillsMetrics: {
         totalSkills: 0,
         skillsByCategory: {},
         proficiencyBreakdown: {},
       },
-
       newsletterMetrics: {
         totalEmailsSent: 0,
         totalSubscribers: 0,
@@ -246,7 +206,6 @@ export async function getDashboardData(): Promise<DashboardStats> {
         welcomeSent: 0,
         contactMessagesSent: 0,
       },
-
       recentBlogs: [],
       projects: [],
       skills: [],

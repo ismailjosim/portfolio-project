@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
-import { formatDateTime } from '@/src/lib/formatters.ts';
+import { formatDateTime } from '@/src/lib/formatters';
 import { IProject } from '@/src/types/project.interface';
 
 interface ProjectDetailsSidebarProps {

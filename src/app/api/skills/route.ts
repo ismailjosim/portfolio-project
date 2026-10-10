@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { parseMongooseError } from '@/src/lib/parseMongooseError';
 import { connectDB } from '@/src/lib/mongodb';
 import Skill from '@/src/models/Skill';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
+
+function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export async function GET(req: Request) {
   try {
@@ -33,17 +38,17 @@ export async function GET(req: Request) {
 
     const filter: Record<string, unknown> = {};
 
-    if (category) filter.category = { $regex: category, $options: 'i' };
+    if (category) filter.category = category;
     if (proficiency) filter.proficiency = proficiency;
-    if (isPublished !== null && isPublished !== undefined) {
+    if (isPublished !== null && isPublished !== undefined && isPublished !== '') {
       filter.isPublished = isPublished === 'true';
     }
 
     if (search) {
+      const safeSearch = escapeRegex(search.trim());
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { category: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -78,10 +83,13 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();
-    console.log({ body });
 
     // Get max order for the category or start at 0
     const maxOrder = await Skill.findOne({ category: body.category })

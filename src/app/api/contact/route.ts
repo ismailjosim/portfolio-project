@@ -2,15 +2,56 @@ import { resend } from '@/src/lib/resend';
 import { logEmailSent } from '@/src/lib/email-logger';
 import { NextResponse } from 'next/server';
 
+import { z } from 'zod';
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(100, 'Name cannot exceed 100 characters'),
+  email: z.string().trim().email('Please provide a valid email address'),
+  phone: z.string().trim().max(30).optional().nullable(),
+  subject: z.string().trim().max(200).optional().nullable(),
+  message: z
+    .string()
+    .trim()
+    .min(1, 'Message is required')
+    .max(5000, 'Message cannot exceed 5000 characters'),
+});
+
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export async function POST(req: Request) {
   try {
-    const { name, email, phone, subject, message } = await req.json();
+    const rawBody = await req.json();
+    const result = contactSchema.safeParse(rawBody);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.issues[0]?.message || 'Validation failed' },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, phone, subject, message } = result.data;
+    const cleanEmail = email.toLowerCase();
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(cleanEmail);
+    const safePhone = escapeHtml(phone || 'Not provided');
+    const safeSubject = escapeHtml(subject || 'New Contact Message');
+    const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
+
+    const recipientEmail = process.env.CONTACT_RECEIVER_EMAIL || 'ismailjosim99@gmail.com';
 
     const { error: resendError } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Ismail Josim <newsletter@contact.ismailjosim.com>',
-      to: 'ismailjosim99@gmail.com',
-      subject: `🚀 ${subject || 'New Contact Message'}`,
-      replyTo: email,
+      to: recipientEmail,
+      subject: `🚀 ${safeSubject}`,
+      replyTo: cleanEmail,
       html: `
             <!DOCTYPE html>
                 <html>
@@ -113,25 +154,25 @@ export async function POST(req: Request) {
                         <div class="content">
                             <div class="field">
                                 <span class="label">Name</span>
-                                <div class="value">${name}</div>
+                                <div class="value">${safeName}</div>
                             </div>
                             <div class="field">
                                 <span class="label">Email</span>
                                 <div class="value">
-                                    <a href="mailto:${email}">${email}</a>
+                                    <a href="mailto:${safeEmail}">${safeEmail}</a>
                                 </div>
                             </div>
                             <div class="field">
                                 <span class="label">Phone</span>
-                                <div class="value">${phone || 'Not provided'}</div>
+                                <div class="value">${safePhone || 'Not provided'}</div>
                             </div>
                             <div class="field">
                                 <span class="label">Subject</span>
-                                <div class="value">${subject}</div>
+                                <div class="value">${safeSubject}</div>
                             </div>
                             <div class="field">
                                 <span class="label">Message</span>
-                                <div class="message">${message.replace(/\n/g, '<br>')}</div>
+                                <div class="message">${safeMessage}</div>
                             </div>
                         </div>
                         <div class="footer">
@@ -146,29 +187,29 @@ export async function POST(req: Request) {
     if (resendError) {
       console.error('Resend Error:', resendError);
       await logEmailSent({
-        recipient: 'ismailjosim99@gmail.com',
-        subject: `🚀 ${subject || 'New Contact Message'}`,
+        recipient: recipientEmail,
+        subject: `🚀 ${safeSubject}`,
         type: 'contact',
         status: 'failed',
         error: resendError.message,
-        metadata: { senderName: name, senderEmail: email, phone },
+        metadata: { senderName: name, senderEmail: cleanEmail, phone },
       });
       return NextResponse.json({ error: 'Email failed to send' }, { status: 500 });
     }
 
     await logEmailSent({
-      recipient: 'ismailjosim99@gmail.com',
-      subject: `🚀 ${subject || 'New Contact Message'}`,
+      recipient: recipientEmail,
+      subject: `🚀 ${safeSubject}`,
       type: 'contact',
       status: 'sent',
-      metadata: { senderName: name, senderEmail: email, phone },
+      metadata: { senderName: name, senderEmail: cleanEmail, phone },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Resend Error:', error);
     await logEmailSent({
-      recipient: 'ismailjosim99@gmail.com',
+      recipient: process.env.CONTACT_RECEIVER_EMAIL || 'ismailjosim99@gmail.com',
       subject: 'New Contact Message',
       type: 'contact',
       status: 'failed',

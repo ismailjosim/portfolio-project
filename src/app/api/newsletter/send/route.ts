@@ -7,9 +7,15 @@ import NewsletterTemplate from '../../../../models/NewsletterTemplate';
 import { compileNewsletterToHtml } from '../../../../lib/newsletter-compiler';
 import { logEmailSent } from '@/src/lib/email-logger';
 
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
+
 // POST /api/newsletter/send — broadcast a newsletter to all active, verified, non-blocked subscribers
 export async function POST(req: Request) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const body = await req.json();

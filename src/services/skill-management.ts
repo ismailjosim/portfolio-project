@@ -78,8 +78,9 @@ export async function getAllSkills(params?: GetSkillsParams) {
     if (params?.sortBy) query.set('sortBy', params.sortBy);
     if (params?.orderBy) query.set('orderBy', params.orderBy);
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/skills${query.toString() ? `?${query.toString()}` : ''
-      }`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/skills${
+      query.toString() ? `?${query.toString()}` : ''
+    }`;
 
     const res = await fetch(url, {
       method: 'GET',

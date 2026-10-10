@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../ui/dialo
 import { Badge } from '../../ui/badge';
 import InfoRow from '../../shared/InfoRow';
 import { Separator } from '../../ui/separator';
-import { formatDateTime } from '../../../lib/formatters.ts';
+import { formatDateTime } from '@/src/lib/formatters';
 import SkillIcon from '../../shared/SkillIcon';
 
 interface ISkillViewDialogProps {

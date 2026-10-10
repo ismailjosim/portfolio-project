@@ -6,6 +6,7 @@ import { parseMongooseError } from '../../../../lib/parseMongooseError';
 import { connectDB } from '../../../../lib/mongodb';
 import { deleteCloudinaryImage } from '../../../../lib/cloudinary';
 import { publishDueScheduledBlogs } from '../../../../lib/publish-scheduled-blogs';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -24,11 +25,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
-    // Case-insensitive slug search
-    const blog = await Blog.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    }).populate('related', 'title slug category coverImage views likesCount');
-    // console.log({ blog })
+    const cleanSlug = slug.toLowerCase().trim();
+    const blog = await Blog.findOne({ slug: cleanSlug }).populate(
+      'related',
+      'title slug category coverImage views likesCount'
+    );
 
     if (!blog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
@@ -55,6 +56,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const { slug } = await params;
@@ -64,10 +69,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
       return NextResponse.json({ error: 'No payload' }, { status: 400 });
     }
 
-    // Get the existing blog to check if image is being updated (case-insensitive)
-    const existingBlog = await Blog.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const cleanSlug = slug.toLowerCase().trim();
+    const existingBlog = await Blog.findOne({ slug: cleanSlug });
     if (!existingBlog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
@@ -78,16 +81,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
         await deleteCloudinaryImage(existingBlog.coverImage);
       } catch (error) {
         console.error('Failed to delete old image:', error);
-        // Continue with update even if deletion fails
       }
     }
 
-    // Stamp the publish date only on the transition into `published`, so an ordinary
-    // edit of an already-published post does not re-float it on the public list.
+    // Stamp the publish date only on the transition into `published`
     const isGoingLive = body.status === 'published' && existingBlog.status !== 'published';
 
     const updated = await Blog.findOneAndUpdate(
-      { slug: { $regex: `^${slug.trim()}$`, $options: 'i' } },
+      { slug: cleanSlug },
       { ...body, updatedAt: new Date(), ...(isGoingLive && { publishedAt: new Date() }) },
       { new: true, runValidators: true }
     );
@@ -106,15 +107,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     return NextResponse.json({ error: 'Failed to update blog' }, { status: 500 });
   }
 }
+
 export async function DELETE(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { slug } = await params;
 
-    // Get the blog before deleting to access the cover image (case-insensitive)
-    const blog = await Blog.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const cleanSlug = slug.toLowerCase().trim();
+    const blog = await Blog.findOne({ slug: cleanSlug });
     if (!blog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
@@ -125,13 +129,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ slug:
         await deleteCloudinaryImage(blog.coverImage);
       } catch (error) {
         console.error('Failed to delete cover image:', error);
-        // Continue with deletion even if image deletion fails
       }
     }
 
-    const deleted = await Blog.findOneAndDelete({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const deleted = await Blog.findOneAndDelete({ slug: cleanSlug });
     if (!deleted) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }

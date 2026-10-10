@@ -23,7 +23,7 @@ import { siteConfig } from '@/src/constants/site-config';
 import { BreadcrumbJsonLd, BlogPostingJsonLd } from '@/src/components/seo/JsonLd';
 import { IBlog } from '@/src/types/blog.interface';
 
-import { formatDateTime } from '@/src/lib/formatters.ts';
+import { formatDateTime } from '@/src/lib/formatters';
 import { getSingleBlogBySlug } from '@/src/services/blog-management';
 import { Separator } from '@/src/components/ui/separator';
 

@@ -3,6 +3,7 @@ import { parseMongooseError } from '../../../../lib/parseMongooseError';
 import { connectDB } from '../../../../lib/mongodb';
 import { deleteCloudinaryImage } from '../../../../lib/cloudinary';
 import Project from '@/src/models/project.model';
+import { isDashboardAuthenticated } from '@/src/lib/dashboard-auth';
 
 // get single project
 export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -14,9 +15,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
-    const project = await Project.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const cleanSlug = slug.toLowerCase().trim();
+    const project = await Project.findOne({ slug: cleanSlug });
 
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -31,6 +31,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { slug } = await params;
     const body = await req.json();
@@ -39,9 +43,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
       return NextResponse.json({ error: 'No payload' }, { status: 400 });
     }
 
-    const existingProject = await Project.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const cleanSlug = slug.toLowerCase().trim();
+    const existingProject = await Project.findOne({ slug: cleanSlug });
 
     if (!existingProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -71,7 +74,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
 
     const updated = await Project.findOneAndUpdate(
-      { slug: { $regex: `^${slug.trim()}$`, $options: 'i' } },
+      { slug: cleanSlug },
       { ...body, updatedAt: new Date() },
       { new: true, runValidators: true }
     );
@@ -89,12 +92,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    if (!(await isDashboardAuthenticated())) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     const { slug } = await params;
 
-    const project = await Project.findOne({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    const cleanSlug = slug.toLowerCase().trim();
+    const project = await Project.findOne({ slug: cleanSlug });
 
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -120,9 +126,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ slug:
       }
     }
 
-    await Project.findOneAndDelete({
-      slug: { $regex: `^${slug.trim()}$`, $options: 'i' },
-    });
+    await Project.findOneAndDelete({ slug: cleanSlug });
 
     return NextResponse.json({ message: 'Project deleted successfully' });
   } catch (err: unknown) {

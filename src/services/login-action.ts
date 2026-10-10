@@ -2,19 +2,21 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE } from '../lib/dashboard-auth';
 
 export type LoginState = { error?: string } | undefined;
 
-const COOKIE_NAME = 'dashboard_session';
-const SESSION_VALUE = 'authenticated';
-const MAX_AGE = 60 * 60 * 24 * 7;
-
 // useActionState requires: (prevState, formData) => State
-// The first param is the previous state — we can ignore it but it MUST be declared
 export async function loginAction(_prevState: LoginState, formData: FormData): Promise<LoginState> {
   const email = formData.get('email')?.toString().trim();
   const password = formData.get('password')?.toString();
-  const from = formData.get('from')?.toString() || '/dashboard';
+  const rawFrom = formData.get('from')?.toString() || '/dashboard';
+
+  // Prevent Open Redirect: only allow internal relative paths, never protocol-relative or absolute URLs
+  const safeFrom =
+    rawFrom.startsWith('/') && !rawFrom.startsWith('//') && !rawFrom.includes('\\')
+      ? rawFrom
+      : '/dashboard';
 
   const validEmail = process.env.DASHBOARD_EMAIL;
   const validPassword = process.env.DASHBOARD_PASSWORD;
@@ -29,20 +31,21 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     return { error: 'Invalid email or password.' };
   }
 
+  const sessionToken = createSessionToken();
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, SESSION_VALUE, {
+  cookieStore.set(SESSION_COOKIE, sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: MAX_AGE,
+    maxAge: SESSION_MAX_AGE,
     path: '/',
   });
 
-  redirect(from);
+  redirect(safeFrom);
 }
 
 export async function logoutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete(SESSION_COOKIE);
   redirect('/login');
 }
